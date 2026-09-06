@@ -56,11 +56,29 @@ export default function AuthPage() {
     setLoading(true);
     setError("");
     setSuccess("");
+
+    const phone = data.phone.trim();
+    const { data: existingProfile, error: profileLookupError } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("phone", phone)
+      .maybeSingle();
+    if (profileLookupError) {
+      setError(`Could not validate your phone number: ${profileLookupError.message}`);
+      setLoading(false);
+      return;
+    }
+    if (existingProfile) {
+      setError("This phone number is already registered. Sign in or use a different phone number.");
+      setLoading(false);
+      return;
+    }
+
     const { data: signupData, error } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
       options: {
-        data: { full_name: data.full_name, phone: data.phone },
+        data: { full_name: data.full_name, phone },
       },
     });
     if (error) {
