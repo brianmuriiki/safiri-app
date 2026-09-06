@@ -77,7 +77,7 @@ export default function DriverQRScanner() {
     const { data: ticket, error: ticketError } = await supabase
       .from("tickets")
       .select(
-        "*, bookings(status, seat_number, passenger_id, schedules(departure_at, routes(name)), profiles!passenger_id(full_name, email))"
+        "*, bookings(status, seat_number, passenger_id, schedules!bookings_schedule_id_fkey(departure_at, routes(name)), profiles!passenger_id(full_name, email))"
       )
       .eq("ticket_code", ticketCode.trim().toUpperCase())
       .maybeSingle();
