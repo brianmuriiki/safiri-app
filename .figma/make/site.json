@@ -1,0 +1,10 @@
+{
+  "description": "Connects passengers with matatus, buses, taxis, and bodaboda riders for seamless travel booking, payments, and management for drivers and admins.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
