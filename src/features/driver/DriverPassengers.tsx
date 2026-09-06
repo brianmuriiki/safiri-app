@@ -3,6 +3,7 @@ import { supabase } from "../../lib/supabase";
 import { useAuthStore } from "../../store/authStore";
 import Card from "../../components/ui/Card";
 import Badge from "../../components/ui/Badge";
+import { toast } from "../../components/ui/Toast";
 import { User, MapPin, ArrowRight, Users } from "lucide-react";
 
 interface PassengerRow {
@@ -26,12 +27,15 @@ export default function DriverPassengers() {
     supabase
       .from("bookings")
       .select(
-        "id, passenger_id, seat_number, status, profiles!passenger_id(full_name, email, phone), schedules!inner(departure_at, routes(name, origin, destination))"
+        "id, passenger_id, seat_number, status, profiles!passenger_id(full_name, email, phone), schedules!bookings_schedule_id_fkey!inner(departure_at, routes(name, origin, destination))"
       )
       .eq("schedules.driver_id", profile.id)
       .eq("status", "confirmed")
       .order("created_at", { ascending: false })
-      .then(({ data }) => setPassengers((data ?? []) as any));
+      .then(({ data, error }) => {
+        if (error) toast.error(`Could not load passengers: ${error.message}`);
+        else setPassengers((data ?? []) as any);
+      });
   }, [profile]);
 
   return (

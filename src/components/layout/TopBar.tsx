@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Menu, X, Bell } from "lucide-react";
+import { Menu, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
 import Sidebar from "./Sidebar";
 import BackButton from "./BackButton";
@@ -11,6 +12,7 @@ interface TopBarProps {
 export default function TopBar({ title }: TopBarProps) {
   const [open, setOpen] = useState(false);
   const { profile } = useAuthStore();
+  const navigate = useNavigate();
 
   return (
     <>
@@ -38,9 +40,15 @@ export default function TopBar({ title }: TopBarProps) {
             Safiri
           </span>
         </div>
-        <div className="w-8 h-8 rounded-full bg-[#1a2235] flex items-center justify-center text-xs font-bold text-[#f97316]">
+        <button
+          type="button"
+          onClick={() => navigate("/profile")}
+          aria-label="Open profile"
+          title="Open profile"
+          className="w-8 h-8 rounded-full bg-[#1a2235] flex items-center justify-center text-xs font-bold text-[#f97316] transition-colors hover:bg-[#243152]"
+        >
           {profile?.full_name?.charAt(0) ?? profile?.email?.charAt(0) ?? "U"}
-        </div>
+        </button>
       </header>
 
       {/* Mobile drawer overlay */}

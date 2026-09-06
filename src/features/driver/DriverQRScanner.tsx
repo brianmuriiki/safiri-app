@@ -88,7 +88,7 @@ export default function DriverQRScanner() {
       return;
     }
     if (!ticket) {
-      setError("Ticket not found. Invalid or expired code.");
+      setError("Ticket not found, or it belongs to a schedule not assigned to your driver account.");
       setLoading(false);
       return;
     }
