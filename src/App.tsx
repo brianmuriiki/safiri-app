@@ -114,26 +114,36 @@ export default function App() {
   const { setUser, fetchProfile } = useAuthStore();
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data }) => {
-      const user = data.session?.user ?? null;
-      setUser(user);
-      if (user) await fetchProfile(user.id);
-      useAuthStore.setState({ loading: false, initialized: true });
-    });
+    let active = true;
+    let processedSessionKey: string | null = null;
 
-    const { data: sub } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const syncAuthState = async (session: Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"]) => {
+      const sessionKey = session?.access_token ?? "anonymous";
+      if (processedSessionKey === sessionKey) return;
+      processedSessionKey = sessionKey;
+
       const user = session?.user ?? null;
       setUser(user);
       if (user) {
-        useAuthStore.setState({ loading: true });
         await fetchProfile(user.id);
       } else {
         useAuthStore.setState({ profile: null, loading: false });
       }
-      useAuthStore.setState({ initialized: true });
+      if (active) useAuthStore.setState({ loading: false, initialized: true });
+    };
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      void syncAuthState(session);
     });
 
-    return () => sub.subscription.unsubscribe();
+    supabase.auth.getSession().then(({ data }) => {
+      void syncAuthState(data.session);
+    });
+
+    return () => {
+      active = false;
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
   return (
