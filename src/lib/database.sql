@@ -404,6 +404,30 @@ create policy "Passengers create activity bookings" on public.activity_bookings 
 create policy "Admins manage activity bookings" on public.activity_bookings for all
   using (public.is_admin()) with check (public.is_admin());
 
+-- In-app notifications (sent by admins to passengers and drivers)
+create table if not exists public.notifications (
+  id uuid default gen_random_uuid() primary key,
+  recipient_id uuid references public.profiles(id) on delete cascade not null,
+  sender_id uuid references public.profiles(id) on delete set null,
+  title text not null,
+  message text not null,
+  read_at timestamptz,
+  created_at timestamptz default now()
+);
+create index if not exists notifications_recipient_created_at_idx
+  on public.notifications (recipient_id, created_at desc);
+alter table public.notifications enable row level security;
+drop policy if exists "Recipients view own notifications" on public.notifications;
+drop policy if exists "Recipients update own notifications" on public.notifications;
+drop policy if exists "Admins send notifications" on public.notifications;
+create policy "Recipients view own notifications" on public.notifications for select
+  using (recipient_id = auth.uid());
+create policy "Recipients update own notifications" on public.notifications for update
+  using (recipient_id = auth.uid())
+  with check (recipient_id = auth.uid());
+create policy "Admins send notifications" on public.notifications for insert
+  with check (public.is_admin() and sender_id = auth.uid());
+
 -- ============================================================
 -- SEED DATA
 -- ============================================================

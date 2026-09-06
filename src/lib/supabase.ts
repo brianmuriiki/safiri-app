@@ -128,3 +128,13 @@ export interface ActivityBooking {
   created_at: string;
   activities?: Activity;
 }
+
+export interface AppNotification {
+  id: string;
+  recipient_id: string;
+  sender_id: string | null;
+  title: string;
+  message: string;
+  read_at: string | null;
+  created_at: string;
+}

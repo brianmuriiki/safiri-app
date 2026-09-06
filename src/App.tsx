@@ -43,9 +43,11 @@ import AdminSchedules from "./features/admin/AdminSchedules";
 import AdminComplaints from "./features/admin/AdminComplaints";
 import AdminActivities from "./features/admin/AdminActivities";
 import AdminBookings from "./features/admin/AdminBookings";
+import AdminNotifications from "./features/admin/AdminNotifications";
 
 // Shared
 import ProfilePage from "./features/profile/ProfilePage";
+import NotificationsPage from "./features/notifications/NotificationsPage";
 import NotFound from "./features/NotFound";
 
 function AuthGuard() {
@@ -168,6 +170,7 @@ export default function App() {
               <Route path="/passenger/book/:scheduleId" element={<BookingPage />} />
               <Route path="/passenger/bookings" element={<MyTripsPage />} />
               <Route path="/passenger/complaints" element={<ComplaintsPage />} />
+              <Route path="/passenger/notifications" element={<NotificationsPage />} />
             </Route>
           </Route>
 
@@ -179,6 +182,7 @@ export default function App() {
               <Route path="/driver/passengers" element={<DriverPassengers />} />
               <Route path="/driver/scan" element={<DriverQRScanner />} />
               <Route path="/driver/complaints" element={<DriverComplaints />} />
+              <Route path="/driver/notifications" element={<NotificationsPage />} />
             </Route>
           </Route>
 
@@ -193,6 +197,7 @@ export default function App() {
               <Route path="/admin/bookings" element={<AdminBookings />} />
               <Route path="/admin/complaints" element={<AdminComplaints />} />
               <Route path="/admin/activities" element={<AdminActivities />} />
+              <Route path="/admin/notifications" element={<AdminNotifications />} />
             </Route>
           </Route>
 

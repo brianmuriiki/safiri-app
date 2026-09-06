@@ -15,6 +15,7 @@ import {
   Activity,
   ScanLine,
   Calendar,
+  Bell,
 } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 
@@ -35,6 +36,7 @@ const passengerNav: NavItem[] = [
   { to: "/passenger/activities", icon: <Activity size={18} />, label: "Activities" },
   { to: "/passenger/bookings", icon: <Ticket size={18} />, label: "My Trips" },
   { to: "/passenger/complaints", icon: <MessageSquare size={18} />, label: "Complaints" },
+  { to: "/passenger/notifications", icon: <Bell size={18} />, label: "Notifications" },
   { to: "/profile", icon: <User size={18} />, label: "Profile" },
 ];
 
@@ -44,6 +46,7 @@ const driverNav: NavItem[] = [
   { to: "/driver/passengers", icon: <Users size={18} />, label: "Passengers" },
   { to: "/driver/scan", icon: <ScanLine size={18} />, label: "Scan Ticket" },
   { to: "/driver/complaints", icon: <MessageSquare size={18} />, label: "Complaints" },
+  { to: "/driver/notifications", icon: <Bell size={18} />, label: "Notifications" },
   { to: "/profile", icon: <User size={18} />, label: "Profile" },
 ];
 
@@ -56,6 +59,7 @@ const adminNav: NavItem[] = [
   { to: "/admin/bookings", icon: <Ticket size={18} />, label: "Bookings" },
   { to: "/admin/complaints", icon: <MessageSquare size={18} />, label: "Complaints" },
   { to: "/admin/activities", icon: <Activity size={18} />, label: "Activities" },
+  { to: "/admin/notifications", icon: <Bell size={18} />, label: "Notifications" },
   { to: "/profile", icon: <User size={18} />, label: "Profile" },
 ];
 
