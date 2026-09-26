@@ -1,9 +1,9 @@
-import React from "react";
+import React from "react"
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "ghost" | "danger" | "success";
-  size?: "sm" | "md" | "lg";
-  loading?: boolean;
+  variant?: "primary" | "secondary" | "ghost" | "danger" | "success"
+  size?: "sm" | "md" | "lg"
+  loading?: boolean
 }
 
 export default function Button({
@@ -16,7 +16,7 @@ export default function Button({
   ...props
 }: ButtonProps) {
   const base =
-    "inline-flex items-center justify-center gap-2 font-semibold rounded-xl transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed select-none";
+    "inline-flex items-center justify-center gap-2 font-semibold rounded-xl transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed select-none"
 
   const variants = {
     primary:
@@ -29,13 +29,13 @@ export default function Button({
       "bg-[#ef4444] text-white hover:bg-[#dc2626] shadow-lg shadow-red-500/20",
     success:
       "bg-[#22c55e] text-white hover:bg-[#16a34a] shadow-lg shadow-green-500/20",
-  };
+  }
 
   const sizes = {
     sm: "px-3 py-1.5 text-sm",
     md: "px-5 py-2.5 text-sm",
     lg: "px-6 py-3 text-base",
-  };
+  }
 
   return (
     <button
@@ -44,11 +44,7 @@ export default function Button({
       {...props}
     >
       {loading && (
-        <svg
-          className="animate-spin w-4 h-4"
-          viewBox="0 0 24 24"
-          fill="none"
-        >
+        <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
           <circle
             className="opacity-25"
             cx="12"
@@ -66,5 +62,5 @@ export default function Button({
       )}
       {children}
     </button>
-  );
+  )
 }

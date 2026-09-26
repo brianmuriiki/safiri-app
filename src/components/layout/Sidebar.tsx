@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom"
 import {
   Home,
   Map,
@@ -16,39 +16,60 @@ import {
   ScanLine,
   Calendar,
   Bell,
-} from "lucide-react";
-import { useAuthStore } from "../../store/authStore";
+  LockKeyhole,
+} from "lucide-react"
+import { useAuthStore } from "../../store/authStore"
 
 interface NavItem {
-  to: string;
-  icon: React.ReactNode;
-  label: string;
+  to: string
+  icon: React.ReactNode
+  label: string
 }
 
 interface SidebarProps {
-  onNavigate?: () => void;
+  onNavigate?: () => void
 }
 
 const passengerNav: NavItem[] = [
   { to: "/passenger", icon: <Home size={18} />, label: "Home" },
   { to: "/passenger/routes", icon: <Map size={18} />, label: "Routes" },
   { to: "/passenger/vehicles", icon: <Bus size={18} />, label: "Vehicles" },
-  { to: "/passenger/activities", icon: <Activity size={18} />, label: "Activities" },
+  {
+    to: "/passenger/activities",
+    icon: <Activity size={18} />,
+    label: "Activities",
+  },
   { to: "/passenger/bookings", icon: <Ticket size={18} />, label: "My Trips" },
-  { to: "/passenger/complaints", icon: <MessageSquare size={18} />, label: "Complaints" },
-  { to: "/passenger/notifications", icon: <Bell size={18} />, label: "Notifications" },
+  {
+    to: "/passenger/complaints",
+    icon: <MessageSquare size={18} />,
+    label: "Complaints",
+  },
+  {
+    to: "/passenger/notifications",
+    icon: <Bell size={18} />,
+    label: "Notifications",
+  },
   { to: "/profile", icon: <User size={18} />, label: "Profile" },
-];
+]
 
 const driverNav: NavItem[] = [
   { to: "/driver", icon: <Home size={18} />, label: "Dashboard" },
   { to: "/driver/schedule", icon: <Calendar size={18} />, label: "Schedule" },
   { to: "/driver/passengers", icon: <Users size={18} />, label: "Passengers" },
   { to: "/driver/scan", icon: <ScanLine size={18} />, label: "Scan Ticket" },
-  { to: "/driver/complaints", icon: <MessageSquare size={18} />, label: "Complaints" },
-  { to: "/driver/notifications", icon: <Bell size={18} />, label: "Notifications" },
+  {
+    to: "/driver/complaints",
+    icon: <MessageSquare size={18} />,
+    label: "Complaints",
+  },
+  {
+    to: "/driver/notifications",
+    icon: <Bell size={18} />,
+    label: "Notifications",
+  },
   { to: "/profile", icon: <User size={18} />, label: "Profile" },
-];
+]
 
 const adminNav: NavItem[] = [
   { to: "/admin", icon: <BarChart3 size={18} />, label: "Analytics" },
@@ -57,32 +78,54 @@ const adminNav: NavItem[] = [
   { to: "/admin/routes", icon: <Route size={18} />, label: "Routes" },
   { to: "/admin/schedules", icon: <Settings size={18} />, label: "Schedules" },
   { to: "/admin/bookings", icon: <Ticket size={18} />, label: "Bookings" },
-  { to: "/admin/complaints", icon: <MessageSquare size={18} />, label: "Complaints" },
-  { to: "/admin/activities", icon: <Activity size={18} />, label: "Activities" },
-  { to: "/admin/notifications", icon: <Bell size={18} />, label: "Notifications" },
+  {
+    to: "/admin/complaints",
+    icon: <MessageSquare size={18} />,
+    label: "Complaints",
+  },
+  {
+    to: "/admin/activities",
+    icon: <Activity size={18} />,
+    label: "Activities",
+  },
+  {
+    to: "/admin/notifications",
+    icon: <Bell size={18} />,
+    label: "Notifications",
+  },
+  { to: "/admin/privacy-requests", icon: <LockKeyhole size={18} />, label: "Privacy requests" },
   { to: "/profile", icon: <User size={18} />, label: "Profile" },
-];
+]
 
 export default function Sidebar({ onNavigate }: SidebarProps) {
-  const { profile, signOut } = useAuthStore();
-  const navigate = useNavigate();
+  const { profile, signOut } = useAuthStore()
+  const navigate = useNavigate()
 
   const nav =
     profile?.role === "admin"
       ? adminNav
       : profile?.role === "driver"
         ? driverNav
-        : passengerNav;
+        : passengerNav
 
-  const roleColors = { passenger: "#f97316", driver: "#22c55e", admin: "#8b5cf6" };
+  const roleColors = {
+    passenger: "#f97316",
+    driver: "#22c55e",
+    admin: "#8b5cf6",
+  }
   const roleIcons = {
     passenger: <User size={14} />,
     driver: <Bus size={14} />,
     admin: <Shield size={14} />,
-  };
-  const roleLabels = { passenger: "Passenger", driver: "Driver", admin: "Admin" };
+  }
+  const roleLabels = {
+    passenger: "Passenger",
+    driver: "Driver",
+    admin: "Admin",
+  }
 
-  const accentColor = roleColors[profile?.role ?? "passenger"];
+  const accentColor = roleColors[profile?.role ?? "passenger"]
+  const homePath = profile?.role === "admin" ? "/admin" : profile?.role === "driver" ? "/driver" : "/passenger"
 
   return (
     <aside className="w-60 h-full flex flex-col bg-[#0d1424] border-r border-white/8">
@@ -121,7 +164,7 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
             to={item.to}
             onClick={onNavigate}
             end={["passenger", "/driver", "/admin"].some(
-              (p) => item.to === `/${p}` || item.to === "/profile"
+              (p) => item.to === `/${p}` || item.to === "/profile",
             )}
             className={({ isActive }) =>
               `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
@@ -151,13 +194,27 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
             <div className="text-sm font-medium text-[#f0f4ff] truncate">
               {profile?.full_name ?? "Traveller"}
             </div>
-            <div className="text-xs text-[#64748b] truncate">{profile?.email}</div>
+            <div className="text-xs text-[#64748b] truncate">
+              {profile?.email}
+            </div>
           </div>
+          <button
+            type="button"
+            onClick={() => {
+              navigate(homePath)
+              onNavigate?.()
+            }}
+            aria-label="Go to home"
+            title="Home"
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-[#64748b] transition-colors hover:bg-white/10 hover:text-white"
+          >
+            <Home size={17} />
+          </button>
         </div>
         <button
           onClick={async () => {
-            await signOut();
-            navigate("/auth");
+            await signOut()
+            navigate("/auth")
           }}
           className="w-full flex items-center gap-2 text-xs text-[#64748b] hover:text-red-400 transition-colors px-2 py-1.5 rounded-lg hover:bg-red-500/10"
         >
@@ -166,5 +223,5 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
         </button>
       </div>
     </aside>
-  );
+  )
 }

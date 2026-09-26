@@ -1,20 +1,21 @@
-import { useEffect, useState } from "react";
-import { supabase, type Schedule, type Booking } from "../../lib/supabase";
-import { useAuthStore } from "../../store/authStore";
-import Card from "../../components/ui/Card";
-import Badge from "../../components/ui/Badge";
-import { MapPin, Clock, Users, ArrowRight, CalendarDays } from "lucide-react";
+import { useEffect, useState } from "react"
+import { supabase, type Schedule, type Booking } from "../../lib/supabase"
+import { useAuthStore } from "../../store/authStore"
+import Card from "../../components/ui/Card"
+import Badge from "../../components/ui/Badge"
+import { Clock, Users, ArrowRight, CalendarDays, ShieldCheck } from "lucide-react"
+import MatatuAnimation from "../../components/MatatuAnimation"
 
 export default function DriverDashboard() {
-  const { profile } = useAuthStore();
-  const [schedules, setSchedules] = useState<Schedule[]>([]);
-  const [todayBookings, setTodayBookings] = useState(0);
-  const [upcomingCount, setUpcomingCount] = useState(0);
+  const { profile } = useAuthStore()
+  const [schedules, setSchedules] = useState<Schedule[]>([])
+  const [todayBookings, setTodayBookings] = useState(0)
+  const [upcomingCount, setUpcomingCount] = useState(0)
 
   useEffect(() => {
-    if (!profile) return;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    if (!profile) return
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
 
     supabase
       .from("schedules")
@@ -24,19 +25,19 @@ export default function DriverDashboard() {
       .order("departure_at")
       .limit(5)
       .then(async ({ data }) => {
-        setSchedules(data ?? []);
-        setUpcomingCount(data?.length ?? 0);
+        setSchedules(data ?? [])
+        setUpcomingCount(data?.length ?? 0)
         if (data && data.length > 0) {
-          const ids = data.map((s) => s.id);
+          const ids = data.map((s) => s.id)
           const { count } = await supabase
             .from("bookings")
             .select("*", { count: "exact", head: true })
             .in("schedule_id", ids)
-            .eq("status", "confirmed");
-          setTodayBookings(count ?? 0);
+            .eq("status", "confirmed")
+          setTodayBookings(count ?? 0)
         }
-      });
-  }, [profile]);
+      })
+  }, [profile])
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -46,13 +47,15 @@ export default function DriverDashboard() {
       >
         Driver Dashboard
       </h1>
-      <p className="text-[#64748b] text-sm mb-6">
-        Welcome back,{" "}
+      <p className="text-[#64748b] text-sm mb-1">
         Welcome back, {profile?.full_name?.split(" ")[0] ?? "Driver"}
       </p>
+      <div className="mb-6"><MatatuAnimation /></div>
+
+      {profile?.driver_verification_status !== "verified" && <Card className="mb-6 flex items-start gap-3 border border-amber-400/20 bg-amber-300/5 p-4"><ShieldCheck className="mt-0.5 shrink-0 text-amber-300" size={18}/><div><div className="text-sm font-semibold capitalize text-amber-200">Driver review: {profile?.driver_verification_status ?? "unverified"}</div><p className="mt-1 text-xs leading-5 text-[#94a3b8]">Safiri is reviewing this driver account. New schedules cannot be published to passengers until verification is complete. Contact support if you need help.</p></div></Card>}
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-2 gap-4 mb-8">
         {[
           {
             label: "Upcoming trips",
@@ -64,7 +67,6 @@ export default function DriverDashboard() {
             value: todayBookings,
             color: "#22c55e",
           },
-          { label: "Rating", value: "4.9 ★", color: "#f59e0b" },
         ].map((s) => (
           <Card key={s.label} className="p-4">
             <div className="text-2xl font-bold mb-1" style={{ color: s.color }}>
@@ -75,9 +77,7 @@ export default function DriverDashboard() {
         ))}
       </div>
 
-      <h2 className="font-semibold text-[#f0f4ff] mb-3">
-        Upcoming schedules
-      </h2>
+      <h2 className="font-semibold text-[#f0f4ff] mb-3">Upcoming schedules</h2>
       <div className="flex flex-col gap-3">
         {schedules.length === 0 && (
           <Card className="p-8 text-center">
@@ -88,8 +88,8 @@ export default function DriverDashboard() {
           </Card>
         )}
         {schedules.map((s) => {
-          const route = s.routes as any;
-          const vehicle = s.vehicles as any;
+          const route = s.routes as any
+          const vehicle = s.vehicles as any
           return (
             <Card key={s.id} className="p-4">
               <div className="flex items-start justify-between mb-3">
@@ -127,9 +127,9 @@ export default function DriverDashboard() {
                 <span>{vehicle?.number_plate}</span>
               </div>
             </Card>
-          );
+          )
         })}
       </div>
     </div>
-  );
+  )
 }

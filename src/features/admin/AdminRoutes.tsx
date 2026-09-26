@@ -1,29 +1,29 @@
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { supabase, type Route } from "../../lib/supabase";
-import Card from "../../components/ui/Card";
-import Badge from "../../components/ui/Badge";
-import Button from "../../components/ui/Button";
-import Input from "../../components/ui/Input";
-import Modal from "../../components/ui/Modal";
-import { toast } from "../../components/ui/Toast";
-import { Plus, Trash2, MapPin, Map } from "lucide-react";
+import { useEffect, useState } from "react"
+import { useForm } from "react-hook-form"
+import { supabase, type Route } from "../../lib/supabase"
+import Card from "../../components/ui/Card"
+import Badge from "../../components/ui/Badge"
+import Button from "../../components/ui/Button"
+import Input from "../../components/ui/Input"
+import Modal from "../../components/ui/Modal"
+import { toast } from "../../components/ui/Toast"
+import { Plus, Trash2, MapPin, Map } from "lucide-react"
 
 interface RouteForm {
-  name: string;
-  origin: string;
-  destination: string;
-  location: string;
-  distance_km: number;
-  base_fare: number;
+  name: string
+  origin: string
+  destination: string
+  location: string
+  distance_km: number
+  base_fare: number
 }
 
 export default function AdminRoutes() {
-  const [routes, setRoutes] = useState<Route[]>([]);
-  const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [deleting, setDeleting] = useState<string | null>(null);
-  const { register, handleSubmit, reset } = useForm<RouteForm>();
+  const [routes, setRoutes] = useState<Route[]>([])
+  const [open, setOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [deleting, setDeleting] = useState<string | null>(null)
+  const { register, handleSubmit, reset } = useForm<RouteForm>()
 
   const load = () =>
     supabase
@@ -31,43 +31,45 @@ export default function AdminRoutes() {
       .select("*")
       .order("created_at", { ascending: false })
       .then(({ data, error }) => {
-        if (error) toast.error(`Could not load routes: ${error.message}`);
-        else setRoutes(data ?? []);
-      });
+        if (error) toast.error(`Could not load routes: ${error.message}`)
+        else setRoutes(data ?? [])
+      })
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load()
+  }, [])
 
   const onSubmit = async (data: RouteForm) => {
-    setLoading(true);
+    setLoading(true)
     const { error } = await supabase.from("routes").insert({
       ...data,
       distance_km: Number(data.distance_km),
       base_fare: Number(data.base_fare),
-    });
+    })
     if (error) {
-      toast.error(`Could not create route: ${error.message}`);
-      setLoading(false);
-      return;
+      toast.error(`Could not create route: ${error.message}`)
+      setLoading(false)
+      return
     }
-    reset();
-    setOpen(false);
-    await load();
-    toast.success("Route created successfully");
-    setLoading(false);
-  };
+    reset()
+    setOpen(false)
+    await load()
+    toast.success("Route created successfully")
+    setLoading(false)
+  }
 
   const deleteRoute = async (id: string) => {
-    if (!window.confirm("Remove this route? This cannot be undone.")) return;
-    setDeleting(id);
-    const { error } = await supabase.from("routes").delete().eq("id", id);
+    if (!window.confirm("Remove this route? This cannot be undone.")) return
+    setDeleting(id)
+    const { error } = await supabase.from("routes").delete().eq("id", id)
     if (error) {
-      toast.error(`Could not remove route: ${error.message}`);
+      toast.error(`Could not remove route: ${error.message}`)
     } else {
-      await load();
-      toast.success("Route removed");
+      await load()
+      toast.success("Route removed")
     }
-    setDeleting(null);
-  };
+    setDeleting(null)
+  }
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -97,9 +99,12 @@ export default function AdminRoutes() {
                 <MapPin size={16} className="text-[#f97316]" />
               </div>
               <div>
-                <div className="font-medium text-[#f0f4ff] text-sm">{r.name}</div>
+                <div className="font-medium text-[#f0f4ff] text-sm">
+                  {r.name}
+                </div>
                 <div className="text-xs text-[#64748b]">
-                  {r.origin} → {r.destination} · {r.distance_km} km{r.location ? ` · ${r.location}` : ""}
+                  {r.origin} → {r.destination} · {r.distance_km} km
+                  {r.location ? ` · ${r.location}` : ""}
                 </div>
               </div>
             </div>
@@ -174,5 +179,5 @@ export default function AdminRoutes() {
         </form>
       </Modal>
     </div>
-  );
+  )
 }

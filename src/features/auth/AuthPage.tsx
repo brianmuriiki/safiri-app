@@ -1,78 +1,66 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
-import { Mail, Lock, Phone, User, Eye, EyeOff } from "lucide-react";
-import { supabase } from "../../lib/supabase";
-import Button from "../../components/ui/Button";
-import Input from "../../components/ui/Input";
+import { useState } from "react"
+import { useNavigate, useSearchParams } from "react-router-dom"
+import { useForm } from "react-hook-form"
+import { Mail, Lock, Phone, User, Eye, EyeOff } from "lucide-react"
+import { supabase } from "../../lib/supabase"
+import Button from "../../components/ui/Button"
+import Input from "../../components/ui/Input"
 
-type Mode = "login" | "register";
+type Mode = "login" | "register"
 
 interface LoginForm {
-  email: string;
-  password: string;
+  email: string
+  password: string
 }
 
 interface RegisterForm {
-  full_name: string;
-  email: string;
-  phone: string;
-  password: string;
-  confirm_password: string;
+  full_name: string
+  email: string
+  phone: string
+  password: string
+  confirm_password: string
 }
 
 export default function AuthPage() {
-  const [mode, setMode] = useState<Mode>("login");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [showPass, setShowPass] = useState(false);
-  const navigate = useNavigate();
+  const [searchParams] = useSearchParams()
+  const [mode, setMode] = useState<Mode>(() =>
+    searchParams.get("mode") === "register" ? "register" : "login",
+  )
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
+  const [showPass, setShowPass] = useState(false)
+  const navigate = useNavigate()
 
-  const loginForm = useForm<LoginForm>();
-  const registerForm = useForm<RegisterForm>();
+  const loginForm = useForm<LoginForm>()
+  const registerForm = useForm<RegisterForm>()
 
   const handleLogin = async (formData: LoginForm) => {
-    setLoading(true);
-    setError("");
-    setSuccess("");
+    setLoading(true)
+    setError("")
+    setSuccess("")
     const { data: authData, error } = await supabase.auth.signInWithPassword({
       email: formData.email,
       password: formData.password,
-    });
+    })
     if (error) {
-      setError(error.message);
+      setError(error.message)
     } else if (authData.user) {
-      navigate("/", { replace: true });
+      navigate("/", { replace: true })
     }
-    setLoading(false);
-  };
+    setLoading(false)
+  }
 
   const handleRegister = async (data: RegisterForm) => {
     if (data.password !== data.confirm_password) {
-      setError("Passwords do not match");
-      return;
+      setError("Passwords do not match")
+      return
     }
-    setLoading(true);
-    setError("");
-    setSuccess("");
+    setLoading(true)
+    setError("")
+    setSuccess("")
 
-    const phone = data.phone.trim();
-    const { data: existingProfile, error: profileLookupError } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("phone", phone)
-      .maybeSingle();
-    if (profileLookupError) {
-      setError(`Could not validate your phone number: ${profileLookupError.message}`);
-      setLoading(false);
-      return;
-    }
-    if (existingProfile) {
-      setError("This phone number is already registered. Sign in or use a different phone number.");
-      setLoading(false);
-      return;
-    }
+    const phone = data.phone.trim()
 
     const { data: signupData, error } = await supabase.auth.signUp({
       email: data.email,
@@ -80,23 +68,27 @@ export default function AuthPage() {
       options: {
         data: { full_name: data.full_name, phone },
       },
-    });
+    })
     if (error) {
-      setError(error.message);
+      setError(error.message.includes("profiles_phone_unique")
+        ? "This phone number is already registered. Sign in or use a different phone number."
+        : error.message)
     } else if (signupData.session) {
-      navigate("/", { replace: true });
+      navigate("/", { replace: true })
     } else {
-      setSuccess("Account created. Check your email to confirm your account, then sign in.");
+      setSuccess(
+        "Account created. Check your email to confirm your account, then sign in.",
+      )
     }
-    setLoading(false);
-  };
+    setLoading(false)
+  }
 
   const handleGoogle = async () => {
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: window.location.origin },
-    });
-  };
+    })
+  }
 
   return (
     <div className="min-h-screen flex">
@@ -300,9 +292,9 @@ export default function AuthPage() {
             {mode === "login" ? "Don't have an account?" : "Already a member?"}{" "}
             <button
               onClick={() => {
-                setMode(mode === "login" ? "register" : "login");
-                setError("");
-                setSuccess("");
+                setMode(mode === "login" ? "register" : "login")
+                setError("")
+                setSuccess("")
               }}
               className="text-[#f97316] font-medium hover:underline"
             >
@@ -312,5 +304,5 @@ export default function AuthPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

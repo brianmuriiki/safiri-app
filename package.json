@@ -10,6 +10,7 @@
     "format": "oxfmt"
   },
   "dependencies": {
+    "@paystack/inline-js": "^2.26.0",
     "@supabase/supabase-js": "^2.115.0",
     "lucide-react": "^1.40.0",
     "qrcode.react": "^4.2.0",

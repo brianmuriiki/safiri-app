@@ -1,0 +1,4 @@
+[functions.paystack]
+# Paystack webhooks authenticate with x-paystack-signature inside the function.
+# User-facing payment actions validate their Supabase access token in code.
+verify_jwt = false

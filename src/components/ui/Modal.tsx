@@ -1,12 +1,12 @@
-import { useEffect } from "react";
-import { X } from "lucide-react";
+import { useEffect } from "react"
+import { X } from "lucide-react"
 
 interface ModalProps {
-  open: boolean;
-  onClose: () => void;
-  title?: string;
-  children: React.ReactNode;
-  size?: "sm" | "md" | "lg";
+  open: boolean
+  onClose: () => void
+  title?: string
+  children: React.ReactNode
+  size?: "sm" | "md" | "lg"
 }
 
 export default function Modal({
@@ -17,16 +17,16 @@ export default function Modal({
   size = "md",
 }: ModalProps) {
   useEffect(() => {
-    if (open) document.body.style.overflow = "hidden";
-    else document.body.style.overflow = "";
+    if (open) document.body.style.overflow = "hidden"
+    else document.body.style.overflow = ""
     return () => {
-      document.body.style.overflow = "";
-    };
-  }, [open]);
+      document.body.style.overflow = ""
+    }
+  }, [open])
 
-  if (!open) return null;
+  if (!open) return null
 
-  const sizes = { sm: "max-w-sm", md: "max-w-lg", lg: "max-w-2xl" };
+  const sizes = { sm: "max-w-sm", md: "max-w-lg", lg: "max-w-2xl" }
 
   return (
     <div
@@ -52,5 +52,5 @@ export default function Modal({
         {children}
       </div>
     </div>
-  );
+  )
 }

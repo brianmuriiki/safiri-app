@@ -1,77 +1,80 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { MapPin, ArrowRight, Search, Map } from "lucide-react";
-import { supabase, type Route, type Schedule } from "../../lib/supabase";
-import Card from "../../components/ui/Card";
-import Badge from "../../components/ui/Badge";
-import Button from "../../components/ui/Button";
+import { useEffect, useState } from "react"
+import { useNavigate, useSearchParams } from "react-router-dom"
+import { MapPin, ArrowRight, Search, Map, X } from "lucide-react"
+import { supabase, type Route, type Schedule } from "../../lib/supabase"
+import Card from "../../components/ui/Card"
+import Badge from "../../components/ui/Badge"
+import Button from "../../components/ui/Button"
 
 export default function RoutesPage() {
-  const [routes, setRoutes] = useState<Route[]>([]);
-  const [schedules, setSchedules] = useState<Schedule[]>([]);
-  const [selected, setSelected] = useState<Route | null>(null);
-  const [scheduledRoutes, setScheduledRoutes] = useState<Record<string, string[]>>({});
-  const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
+  const [routes, setRoutes] = useState<Route[]>([])
+  const [schedules, setSchedules] = useState<Schedule[]>([])
+  const [selected, setSelected] = useState<Route | null>(null)
+  const [scheduledRoutes, setScheduledRoutes] =
+    useState<Record<string, string[]>>({})
+  const [search, setSearch] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
 
   useEffect(() => {
-    setSearch(searchParams.get("search") ?? "");
-  }, [searchParams]);
+    setSearch(searchParams.get("search") ?? "")
+  }, [searchParams])
 
   useEffect(() => {
     supabase
       .from("routes")
       .select("*")
       .eq("active", true)
-      .then(({ data }) => setRoutes(data ?? []));
+      .then(({ data }) => setRoutes(data ?? []))
 
-    supabase
-      .from("schedules")
-      .select("id, route_id, departure_at")
-      .eq("status", "scheduled")
-      .gte("departure_at", new Date().toISOString())
-      .order("departure_at")
-      .then(({ data }) => {
-        const grouped: Record<string, string[]> = {};
-        (data ?? []).forEach((schedule) => {
-          if (!grouped[schedule.route_id]) grouped[schedule.route_id] = [];
-          grouped[schedule.route_id].push(schedule.id);
-        });
-        setScheduledRoutes(grouped);
-      });
-  }, []);
+    void supabase.rpc("release_expired_booking_seats").then(({ error }) => {
+      if (error) console.error("Could not release expired seat holds", error)
+      return supabase
+        .from("schedules")
+        .select("id, route_id, departure_at")
+        .eq("status", "scheduled")
+        .gte("departure_at", new Date().toISOString())
+        .order("departure_at")
+    }).then(({ data }) => {
+        const grouped: Record<string, string[]> = {}
+        ;(data ?? []).forEach((schedule) => {
+          if (!grouped[schedule.route_id]) grouped[schedule.route_id] = []
+          grouped[schedule.route_id].push(schedule.id)
+        })
+        setScheduledRoutes(grouped)
+      })
+  }, [])
 
   useEffect(() => {
-    const id = searchParams.get("id");
+    const id = searchParams.get("id")
     if (id) {
-      const r = routes.find((r) => r.id === id);
-      if (r) loadSchedules(r);
+      const r = routes.find((r) => r.id === id)
+      if (r) loadSchedules(r)
     }
-  }, [searchParams, routes]);
+  }, [searchParams, routes])
 
   const loadSchedules = async (route: Route) => {
-    setSelected(route);
-    setLoading(true);
+    setSelected(route)
+    setLoading(true)
     const { data } = await supabase
       .from("schedules")
-      .select("*, routes(*), vehicles(*), profiles!driver_id(*)")
+      .select("*, routes(*), vehicles(*)")
       .eq("route_id", route.id)
       .eq("status", "scheduled")
       .gte("departure_at", new Date().toISOString())
-      .order("departure_at");
-    setSchedules(data ?? []);
-    setLoading(false);
-  };
+      .order("departure_at")
+    setSchedules(data ?? [])
+    setLoading(false)
+  }
 
   const filtered = routes.filter(
     (r) =>
       r.name.toLowerCase().includes(search.toLowerCase()) ||
       r.origin.toLowerCase().includes(search.toLowerCase()) ||
       r.destination.toLowerCase().includes(search.toLowerCase()) ||
-      (r.location ?? "").toLowerCase().includes(search.toLowerCase())
-  );
+      (r.location ?? "").toLowerCase().includes(search.toLowerCase()),
+  )
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
@@ -94,8 +97,18 @@ export default function RoutesPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search routes, origins, destinations…"
-          className="w-full bg-[#1a2235] border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-[#f0f4ff] placeholder:text-[#64748b] outline-none focus:border-[#f97316] transition-all"
+          className="w-full bg-[#1a2235] border border-white/10 rounded-xl pl-10 pr-10 py-2.5 text-sm text-[#f0f4ff] placeholder:text-[#64748b] outline-none focus:border-[#f97316] transition-all"
         />
+        {search && (
+          <button
+            type="button"
+            aria-label="Clear route search"
+            onClick={() => setSearch("")}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748b] hover:text-[#f0f4ff]"
+          >
+            <X size={16} />
+          </button>
+        )}
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
@@ -106,7 +119,9 @@ export default function RoutesPage() {
               key={r.id}
               hover
               onClick={() => loadSchedules(r)}
-              className={`p-4 transition-all ${selected?.id === r.id ? "border-orange-500/50 bg-[#1a2235]" : ""}`}
+              className={`p-4 transition-all ${
+                selected?.id === r.id ? "border-orange-500/50 bg-[#1a2235]" : ""
+              }`}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -123,7 +138,9 @@ export default function RoutesPage() {
                       {r.destination}
                     </div>
                     {r.location && (
-                      <div className="mt-1 text-xs text-[#64748b]">📍 {r.location}</div>
+                      <div className="mt-1 text-xs text-[#64748b]">
+                        📍 {r.location}
+                      </div>
                     )}
                   </div>
                 </div>
@@ -137,16 +154,20 @@ export default function RoutesPage() {
                 </div>
               </div>
               <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/5">
-                <Badge variant={scheduledRoutes[r.id]?.length ? "success" : "default"}>
+                <Badge
+                  variant={
+                    scheduledRoutes[r.id]?.length ? "success" : "default"
+                  }
+                >
                   {scheduledRoutes[r.id]?.length ? "Available" : "Unavailable"}
                 </Badge>
                 <Button
                   size="sm"
                   disabled={!scheduledRoutes[r.id]?.length}
                   onClick={(event) => {
-                    event.stopPropagation();
-                    const scheduleId = scheduledRoutes[r.id]?.[0];
-                    if (scheduleId) navigate(`/passenger/book/${scheduleId}`);
+                    event.stopPropagation()
+                    const scheduleId = scheduledRoutes[r.id]?.[0]
+                    if (scheduleId) navigate(`/passenger/book/${scheduleId}`)
                   }}
                 >
                   Book
@@ -215,9 +236,7 @@ export default function RoutesPage() {
                         <Button
                           size="sm"
                           disabled={s.seats_available === 0}
-                          onClick={() =>
-                            navigate(`/passenger/book/${s.id}`)
-                          }
+                          onClick={() => navigate(`/passenger/book/${s.id}`)}
                         >
                           Book
                         </Button>
@@ -238,5 +257,5 @@ export default function RoutesPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

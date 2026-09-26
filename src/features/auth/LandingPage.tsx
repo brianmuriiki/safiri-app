@@ -1,13 +1,25 @@
-import { useNavigate } from "react-router-dom";
-import { MapPin, Shield, Zap, Phone, Star, ArrowRight, Bus, CheckCircle, Car, Bike } from "lucide-react";
-import Button from "../../components/ui/Button";
+import { useNavigate } from "react-router-dom"
+import {
+  MapPin,
+  Shield,
+  Zap,
+  Phone,
+  Star,
+  ArrowRight,
+  Bus,
+  CheckCircle,
+  Car,
+  Bike,
+} from "lucide-react"
+import Button from "../../components/ui/Button"
+import SiteFooter from "../../components/layout/SiteFooter"
 
 const stats = [
   { value: "50K+", label: "Happy passengers" },
   { value: "200+", label: "Daily routes" },
   { value: "1.2K+", label: "Registered drivers" },
   { value: "4.8★", label: "Average rating" },
-];
+]
 
 const features = [
   {
@@ -34,17 +46,17 @@ const features = [
     desc: "Every driver is vetted and rated. Travel with total confidence.",
     bg: "#8b5cf6",
   },
-];
+]
 
 const vehicles = [
   { icon: Bus, name: "Matatu", desc: "Fast, frequent, affordable" },
   { icon: Bus, name: "Bus", desc: "Comfortable long-distance" },
   { icon: Car, name: "Taxi", desc: "Private, door-to-door" },
   { icon: Bike, name: "Bodaboda", desc: "Quick last-mile rides" },
-];
+]
 
 export default function LandingPage() {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   return (
     <div
@@ -55,7 +67,10 @@ export default function LandingPage() {
       <nav className="sticky top-0 z-30 bg-[#0a0f1e]/80 backdrop-blur-md border-b border-white/8 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-[#f97316] flex items-center justify-center">
-            <span className="text-white font-bold" style={{ fontFamily: "Fraunces, serif" }}>
+            <span
+              className="text-white font-bold"
+              style={{ fontFamily: "Fraunces, serif" }}
+            >
               S
             </span>
           </div>
@@ -91,19 +106,22 @@ export default function LandingPage() {
               className="text-5xl lg:text-6xl font-bold leading-[1.1] mb-6"
               style={{ fontFamily: "Fraunces, serif" }}
             >
-              Travel Kenya{" "}
-              <span className="text-[#f97316]">your</span>{" "}
+              Travel Kenya <span className="text-[#f97316]">your</span>{" "}
               <span className="italic">way.</span>
             </h1>
             <p className="text-lg text-[#94a3b8] mb-8 leading-relaxed max-w-lg">
-              Book matatus, buses, taxis and bodabodas across Nairobi and beyond.
-              Pay with M-Pesa. Get digital tickets instantly.
+              Book matatus, buses, taxis and bodabodas across Nairobi and
+              beyond. Pay with M-Pesa. Get digital tickets instantly.
             </p>
             <div className="flex flex-wrap gap-3 mb-8">
               <Button size="lg" onClick={() => navigate("/auth")}>
                 Start booking <ArrowRight size={16} />
               </Button>
-              <Button size="lg" variant="secondary" onClick={() => navigate("/auth")}>
+              <Button
+                size="lg"
+                variant="secondary"
+                onClick={() => navigate("/auth")}
+              >
                 I'm a driver
               </Button>
             </div>
@@ -126,20 +144,30 @@ export default function LandingPage() {
             {/* Floating cards */}
             <div className="absolute -left-8 top-1/2 -translate-y-1/2 bg-[#111827] border border-white/10 rounded-2xl p-4 shadow-2xl">
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-8 h-8 rounded-lg bg-orange-500/20 flex items-center justify-center text-[#f97316]"><Bus size={17} /></div>
+                <div className="w-8 h-8 rounded-lg bg-orange-500/20 flex items-center justify-center text-[#f97316]">
+                  <Bus size={17} />
+                </div>
                 <div>
-                  <div className="text-xs font-semibold text-[#f0f4ff]">CBD → Westlands</div>
+                  <div className="text-xs font-semibold text-[#f0f4ff]">
+                    CBD → Westlands
+                  </div>
                   <div className="text-xs text-[#64748b]">Departs 2:30 PM</div>
                 </div>
               </div>
-              <div className="text-xs font-bold text-[#f97316]">KES 50 · 8 seats left</div>
+              <div className="text-xs font-bold text-[#f97316]">
+                KES 50 · 8 seats left
+              </div>
             </div>
             <div className="absolute -right-4 bottom-8 bg-[#111827] border border-white/10 rounded-2xl p-3 shadow-2xl">
               <div className="flex items-center gap-2">
                 <CheckCircle size={16} className="text-[#22c55e]" />
-                <div className="text-xs text-[#f0f4ff] font-medium">Payment confirmed</div>
+                <div className="text-xs text-[#f0f4ff] font-medium">
+                  Payment confirmed
+                </div>
               </div>
-              <div className="text-xs text-[#64748b] mt-0.5">M-Pesa · KES 50</div>
+              <div className="text-xs text-[#64748b] mt-0.5">
+                M-Pesa · KES 50
+              </div>
             </div>
           </div>
         </div>
@@ -177,17 +205,22 @@ export default function LandingPage() {
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {vehicles.map((v) => {
-            const VehicleIcon = v.icon;
+            const VehicleIcon = v.icon
             return (
-            <div
-              key={v.name}
-              className="bg-[#111827] border border-white/8 rounded-2xl p-6 text-center hover:border-orange-500/30 hover:bg-[#141e33] transition-all duration-200 cursor-default"
-            >
-              <VehicleIcon size={36} className="mx-auto mb-3 text-[#f97316]" />
-              <div className="font-semibold text-[#f0f4ff] mb-1">{v.name}</div>
-              <div className="text-xs text-[#64748b]">{v.desc}</div>
-            </div>
-            );
+              <div
+                key={v.name}
+                className="bg-[#111827] border border-white/8 rounded-2xl p-6 text-center hover:border-orange-500/30 hover:bg-[#141e33] transition-all duration-200 cursor-default"
+              >
+                <VehicleIcon
+                  size={36}
+                  className="mx-auto mb-3 text-[#f97316]"
+                />
+                <div className="font-semibold text-[#f0f4ff] mb-1">
+                  {v.name}
+                </div>
+                <div className="text-xs text-[#64748b]">{v.desc}</div>
+              </div>
+            )
           })}
         </div>
       </section>
@@ -202,7 +235,9 @@ export default function LandingPage() {
             >
               Built for Kenyan travellers
             </h2>
-            <p className="text-[#64748b]">Everything you need, nothing you don't.</p>
+            <p className="text-[#64748b]">
+              Everything you need, nothing you don't.
+            </p>
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
             {features.map((f) => (
@@ -217,7 +252,9 @@ export default function LandingPage() {
                   {f.icon}
                 </div>
                 <h3 className="font-semibold text-[#f0f4ff] mb-2">{f.title}</h3>
-                <p className="text-sm text-[#64748b] leading-relaxed">{f.desc}</p>
+                <p className="text-sm text-[#64748b] leading-relaxed">
+                  {f.desc}
+                </p>
               </div>
             ))}
           </div>
@@ -259,14 +296,20 @@ export default function LandingPage() {
             >
               <div className="flex gap-0.5 mb-3">
                 {Array.from({ length: t.stars }).map((_, i) => (
-                  <Star key={i} size={13} className="text-[#f59e0b] fill-[#f59e0b]" />
+                  <Star
+                    key={i}
+                    size={13}
+                    className="text-[#f59e0b] fill-[#f59e0b]"
+                  />
                 ))}
               </div>
               <p className="text-sm text-[#94a3b8] mb-4 leading-relaxed">
                 "{t.text}"
               </p>
               <div>
-                <div className="text-sm font-semibold text-[#f0f4ff]">{t.name}</div>
+                <div className="text-sm font-semibold text-[#f0f4ff]">
+                  {t.name}
+                </div>
                 <div className="text-xs text-[#64748b]">{t.location}</div>
               </div>
             </div>
@@ -277,7 +320,11 @@ export default function LandingPage() {
       {/* CTA */}
       <section className="py-20 px-6">
         <div className="max-w-2xl mx-auto text-center bg-gradient-to-br from-[#f97316] to-[#ea580c] rounded-3xl p-12 relative overflow-hidden">
-          <Bus size={140} className="absolute right-2 top-2 opacity-10" aria-hidden="true" />
+          <Bus
+            size={140}
+            className="absolute right-2 top-2 opacity-10"
+            aria-hidden="true"
+          />
           <h2
             className="text-4xl font-bold text-white mb-4 relative"
             style={{ fontFamily: "Fraunces, serif" }}
@@ -297,18 +344,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-white/8 py-8 px-6 text-center text-xs text-[#64748b]">
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <div className="w-5 h-5 rounded bg-[#f97316] flex items-center justify-center">
-            <span className="text-white font-bold text-xs">S</span>
-          </div>
-          <span className="font-semibold text-[#f0f4ff]" style={{ fontFamily: "Fraunces, serif" }}>
-            Safiri
-          </span>
-        </div>
-        <p>© {new Date().getFullYear()} Safiri. Built for Kenya.</p>
-      </footer>
+      <SiteFooter />
     </div>
-  );
+  )
 }

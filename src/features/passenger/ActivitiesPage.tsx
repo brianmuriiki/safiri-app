@@ -1,14 +1,15 @@
-import { useEffect, useState } from "react";
-import { supabase, type Activity } from "../../lib/supabase";
-import { useAuthStore } from "../../store/authStore";
-import Card from "../../components/ui/Card";
-import Badge from "../../components/ui/Badge";
-import Button from "../../components/ui/Button";
-import Input from "../../components/ui/Input";
-import Modal from "../../components/ui/Modal";
-import { CardSkeleton } from "../../components/ui/Skeleton";
-import { toast } from "../../components/ui/Toast";
-import { Search, Zap, Target } from "lucide-react";
+import { useEffect, useState } from "react"
+import { useSearchParams } from "react-router-dom"
+import { supabase, type Activity } from "../../lib/supabase"
+import { useAuthStore } from "../../store/authStore"
+import Card from "../../components/ui/Card"
+import Badge from "../../components/ui/Badge"
+import Button from "../../components/ui/Button"
+import Input from "../../components/ui/Input"
+import Modal from "../../components/ui/Modal"
+import { CardSkeleton } from "../../components/ui/Skeleton"
+import { toast } from "../../components/ui/Toast"
+import { Search, Zap, Target, X } from "lucide-react"
 
 const typeColors: Record<string, "info" | "success" | "warning" | "default"> = {
   tour: "info",
@@ -16,19 +17,20 @@ const typeColors: Record<string, "info" | "success" | "warning" | "default"> = {
   bodaboda: "warning",
   taxi: "default",
   general: "default",
-};
+}
 
 export default function ActivitiesPage() {
-  const { profile } = useAuthStore();
-  const [activities, setActivities] = useState<Activity[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [activeType, setActiveType] = useState("all");
-  const [selected, setSelected] = useState<Activity | null>(null);
-  const [activityDate, setActivityDate] = useState("");
-  const [guests, setGuests] = useState(1);
-  const [notes, setNotes] = useState("");
-  const [booking, setBooking] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams()
+  const { profile } = useAuthStore()
+  const [activities, setActivities] = useState<Activity[]>([])
+  const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState("")
+  const [activeType, setActiveType] = useState("all")
+  const [selected, setSelected] = useState<Activity | null>(null)
+  const [activityDate, setActivityDate] = useState("")
+  const [guests, setGuests] = useState(1)
+  const [notes, setNotes] = useState("")
+  const [booking, setBooking] = useState(false)
 
   useEffect(() => {
     supabase
@@ -37,31 +39,45 @@ export default function ActivitiesPage() {
       .eq("active", true)
       .order("created_at", { ascending: false })
       .then(({ data }) => {
-        setActivities(data ?? []);
-        setLoading(false);
-      });
-  }, []);
+        setActivities(data ?? [])
+        setLoading(false)
+      })
+  }, [])
 
-  const types = ["all", ...Array.from(new Set(activities.map((a) => a.type)))];
+  const types = ["all", ...Array.from(new Set(activities.map((a) => a.type)))]
 
   const filtered = activities.filter((a) => {
     const matchSearch =
       a.title.toLowerCase().includes(search.toLowerCase()) ||
-      (a.description ?? "").toLowerCase().includes(search.toLowerCase());
-    const matchType = activeType === "all" || a.type === activeType;
-    return matchSearch && matchType;
-  });
+      (a.description ?? "").toLowerCase().includes(search.toLowerCase())
+    const matchType = activeType === "all" || a.type === activeType
+    return matchSearch && matchType
+  })
 
   const openBooking = (activity: Activity) => {
-    setSelected(activity);
-    setActivityDate(new Date(Date.now() + 86_400_000).toISOString().slice(0, 10));
-    setGuests(1);
-    setNotes("");
-  };
+    setSelected(activity)
+    setActivityDate(
+      new Date(Date.now() + 86_400_000).toISOString().slice(0, 10),
+    )
+    setGuests(1)
+    setNotes("")
+  }
+
+  useEffect(() => {
+    const activityId = searchParams.get("book")
+    if (loading || !activityId) return
+
+    const activity = activities.find((item) => item.id === activityId)
+    if (activity) openBooking(activity)
+
+    const nextParams = new URLSearchParams(searchParams)
+    nextParams.delete("book")
+    setSearchParams(nextParams, { replace: true })
+  }, [activities, loading, searchParams, setSearchParams])
 
   const submitBooking = async () => {
-    if (!profile || !selected || !activityDate) return;
-    setBooking(true);
+    if (!profile || !selected || !activityDate) return
+    setBooking(true)
     const { error } = await supabase.from("activity_bookings").insert({
       activity_id: selected.id,
       passenger_id: profile.id,
@@ -69,16 +85,16 @@ export default function ActivitiesPage() {
       guests,
       notes: notes.trim() || null,
       status: "requested",
-    });
-    setBooking(false);
+    })
+    setBooking(false)
 
     if (error) {
-      toast.error(`Could not request activity: ${error.message}`);
-      return;
+      toast.error(`Could not request activity: ${error.message}`)
+      return
     }
-    setSelected(null);
-    toast.success("Activity requested! We'll confirm your booking shortly.");
-  };
+    setSelected(null)
+    toast.success("Activity requested! We'll confirm your booking shortly.")
+  }
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
@@ -118,12 +134,30 @@ export default function ActivitiesPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search activities…"
-          className="w-full bg-[#1a2235] border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-[#f0f4ff] placeholder:text-[#64748b] outline-none focus:border-[#f97316] transition-all"
+          className="w-full bg-[#1a2235] border border-white/10 rounded-xl pl-10 pr-10 py-2.5 text-sm text-[#f0f4ff] placeholder:text-[#64748b] outline-none focus:border-[#f97316] transition-all"
         />
+        {search && (
+          <button
+            type="button"
+            aria-label="Clear activity search"
+            onClick={() => setSearch("")}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748b] hover:text-[#f0f4ff]"
+          >
+            <X size={16} />
+          </button>
+        )}
       </div>
 
       {/* Type filter */}
       <div className="flex gap-2 mb-6 overflow-x-auto pb-1">
+        {activeType !== "all" && (
+          <button
+            onClick={() => setActiveType("all")}
+            className="px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap bg-white/5 text-[#94a3b8] hover:text-[#f0f4ff]"
+          >
+            Clear filters
+          </button>
+        )}
         {types.map((t) => (
           <button
             key={t}
@@ -163,7 +197,9 @@ export default function ActivitiesPage() {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-[#64748b]"><Target size={36} /></div>
+                  <div className="w-full h-full flex items-center justify-center text-[#64748b]">
+                    <Target size={36} />
+                  </div>
                 )}
                 <div className="absolute top-3 left-3">
                   <Badge variant={typeColors[a.type] ?? "default"}>
@@ -185,7 +221,11 @@ export default function ActivitiesPage() {
                     year: "numeric",
                   })}
                 </div>
-                <Button size="sm" className="mt-3 w-full" onClick={() => openBooking(a)}>
+                <Button
+                  size="sm"
+                  className="mt-3 w-full"
+                  onClick={() => openBooking(a)}
+                >
                   Book activity
                 </Button>
               </div>
@@ -201,7 +241,8 @@ export default function ActivitiesPage() {
       >
         <div className="flex flex-col gap-4">
           <p className="text-sm text-[#94a3b8]">
-            Choose your preferred date and group size. We will confirm availability with you.
+            Choose your preferred date and group size. We will confirm
+            availability with you.
           </p>
           <Input
             label="Preferred date"
@@ -215,11 +256,14 @@ export default function ActivitiesPage() {
             type="number"
             min="1"
             value={guests}
-            onChange={(event) => setGuests(Math.max(1, Number(event.target.value) || 1))}
+            onChange={(event) =>
+              setGuests(Math.max(1, Number(event.target.value) || 1))
+            }
           />
           <div>
             <label className="mb-1.5 block text-sm font-medium text-[#94a3b8]">
-              Notes for the organiser <span className="text-[#64748b]">(optional)</span>
+              Notes for the organiser{" "}
+              <span className="text-[#64748b]">(optional)</span>
             </label>
             <textarea
               value={notes}
@@ -229,11 +273,15 @@ export default function ActivitiesPage() {
               className="w-full resize-none rounded-xl border border-white/10 bg-[#1a2235] px-4 py-3 text-sm text-[#f0f4ff] outline-none transition-all placeholder:text-[#64748b] focus:border-[#f97316]"
             />
           </div>
-          <Button loading={booking} disabled={!activityDate} onClick={submitBooking}>
+          <Button
+            loading={booking}
+            disabled={!activityDate}
+            onClick={submitBooking}
+          >
             Send booking request
           </Button>
         </div>
       </Modal>
     </div>
-  );
+  )
 }

@@ -1,33 +1,41 @@
-import { useEffect, useState } from "react";
-import { supabase, type Complaint } from "../../lib/supabase";
-import Card from "../../components/ui/Card";
-import Badge from "../../components/ui/Badge";
-import Button from "../../components/ui/Button";
-import { CheckCircle, CheckCircle2 } from "lucide-react";
+import { useEffect, useState } from "react"
+import { supabase, type Complaint } from "../../lib/supabase"
+import Card from "../../components/ui/Card"
+import Badge from "../../components/ui/Badge"
+import Button from "../../components/ui/Button"
+import { CheckCircle, CheckCircle2 } from "lucide-react"
 
 export default function AdminComplaints() {
-  const [complaints, setComplaints] = useState<Complaint[]>([]);
-  const [resolving, setResolving] = useState<string | null>(null);
+  const [complaints, setComplaints] = useState<Complaint[]>([])
+  const [resolving, setResolving] = useState<string | null>(null)
 
   const load = () =>
     supabase
       .from("complaints")
       .select("*, profiles!passenger_id(full_name, email)")
       .order("created_at", { ascending: false })
-      .then(({ data }) => setComplaints(data ?? []));
+      .then(({ data }) => setComplaints(data ?? []))
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load()
+  }, [])
 
   const resolve = async (id: string) => {
-    setResolving(id);
-    await supabase.from("complaints").update({ status: "resolved" }).eq("id", id);
-    await load();
-    setResolving(null);
-  };
+    setResolving(id)
+    await supabase
+      .from("complaints")
+      .update({ status: "resolved" })
+      .eq("id", id)
+    await load()
+    setResolving(null)
+  }
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
-      <h1 className="text-2xl font-bold mb-1" style={{ fontFamily: "Fraunces, serif" }}>
+      <h1
+        className="text-2xl font-bold mb-1"
+        style={{ fontFamily: "Fraunces, serif" }}
+      >
         Complaints
       </h1>
       <p className="text-[#64748b] text-sm mb-6">All passenger complaints</p>
@@ -38,7 +46,9 @@ export default function AdminComplaints() {
             <div className="flex items-start justify-between mb-2">
               <div>
                 <div className="text-sm font-medium text-[#f0f4ff]">
-                  {(c as any).profiles?.full_name ?? (c as any).profiles?.email ?? "Unknown"}
+                  {(c as any).profiles?.full_name ??
+                    (c as any).profiles?.email ??
+                    "Unknown"}
                 </div>
                 <div className="text-xs text-[#64748b]">
                   {new Date(c.created_at).toLocaleString()}
@@ -70,5 +80,5 @@ export default function AdminComplaints() {
         )}
       </div>
     </div>
-  );
+  )
 }

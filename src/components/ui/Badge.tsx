@@ -1,7 +1,7 @@
 interface BadgeProps {
-  children: React.ReactNode;
-  variant?: "default" | "success" | "warning" | "danger" | "info";
-  className?: string;
+  children: React.ReactNode
+  variant?: "default" | "success" | "warning" | "danger" | "info"
+  className?: string
 }
 
 export default function Badge({
@@ -15,7 +15,7 @@ export default function Badge({
     warning: "bg-amber-500/15 text-amber-400 border border-amber-500/20",
     danger: "bg-red-500/15 text-red-400 border border-red-500/20",
     info: "bg-orange-500/15 text-orange-400 border border-orange-500/20",
-  };
+  }
 
   return (
     <span
@@ -23,5 +23,5 @@ export default function Badge({
     >
       {children}
     </span>
-  );
+  )
 }

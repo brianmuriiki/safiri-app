@@ -1,7 +1,8 @@
-import { Outlet } from "react-router-dom";
-import Sidebar from "./Sidebar";
-import TopBar from "./TopBar";
-import BackButton from "./BackButton";
+import { Outlet } from "react-router-dom"
+import Sidebar from "./Sidebar"
+import TopBar from "./TopBar"
+import BackButton from "./BackButton"
+import SiteFooter from "./SiteFooter"
 
 export default function AppShell() {
   return (
@@ -19,8 +20,9 @@ export default function AppShell() {
         </div>
         <main className="flex-1 overflow-y-auto">
           <Outlet />
+          <SiteFooter />
         </main>
       </div>
     </div>
-  );
+  )
 }

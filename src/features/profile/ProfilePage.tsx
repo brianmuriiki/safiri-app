@@ -1,74 +1,76 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { supabase } from "../../lib/supabase";
-import { useAuthStore } from "../../store/authStore";
-import Card from "../../components/ui/Card";
-import Button from "../../components/ui/Button";
-import Input from "../../components/ui/Input";
-import Badge from "../../components/ui/Badge";
-import { toast } from "../../components/ui/Toast";
-import { User, Phone, Mail, Lock, Shield } from "lucide-react";
+import { useState } from "react"
+import { useForm } from "react-hook-form"
+import { supabase } from "../../lib/supabase"
+import { useAuthStore } from "../../store/authStore"
+import Card from "../../components/ui/Card"
+import Button from "../../components/ui/Button"
+import Input from "../../components/ui/Input"
+import Badge from "../../components/ui/Badge"
+import { toast } from "../../components/ui/Toast"
+import { User, Phone, Mail, Lock, Shield } from "lucide-react"
 
 interface ProfileForm {
-  full_name: string;
-  phone: string;
+  full_name: string
+  phone: string
 }
 
 interface PasswordForm {
-  password: string;
-  confirm: string;
+  password: string
+  confirm: string
 }
 
-const roleColors = { passenger: "#f97316", driver: "#22c55e", admin: "#8b5cf6" };
-const roleLabels = { passenger: "Passenger", driver: "Driver", admin: "Admin" };
+const roleColors = { passenger: "#f97316", driver: "#22c55e", admin: "#8b5cf6" }
+const roleLabels = { passenger: "Passenger", driver: "Driver", admin: "Admin" }
 
 export default function ProfilePage() {
-  const { profile, fetchProfile, user } = useAuthStore();
-  const [saving, setSaving] = useState(false);
-  const [changingPw, setChangingPw] = useState(false);
+  const { profile, fetchProfile, user } = useAuthStore()
+  const [saving, setSaving] = useState(false)
+  const [changingPw, setChangingPw] = useState(false)
 
   const profileForm = useForm<ProfileForm>({
     defaultValues: {
       full_name: profile?.full_name ?? "",
       phone: profile?.phone ?? "",
     },
-  });
+  })
 
-  const pwForm = useForm<PasswordForm>();
+  const pwForm = useForm<PasswordForm>()
 
   const saveProfile = async (data: ProfileForm) => {
-    if (!profile) return;
-    setSaving(true);
+    if (!profile) return
+    setSaving(true)
     const { error } = await supabase
       .from("profiles")
       .update({ full_name: data.full_name, phone: data.phone })
-      .eq("id", profile.id);
-    if (error) toast.error("Failed to update profile");
+      .eq("id", profile.id)
+    if (error) toast.error("Failed to update profile")
     else {
-      toast.success("Profile updated!");
-      await fetchProfile(profile.id);
+      toast.success("Profile updated!")
+      await fetchProfile(profile.id)
     }
-    setSaving(false);
-  };
+    setSaving(false)
+  }
 
   const changePassword = async (data: PasswordForm) => {
     if (data.password !== data.confirm) {
-      toast.error("Passwords do not match");
-      return;
+      toast.error("Passwords do not match")
+      return
     }
-    setChangingPw(true);
-    const { error } = await supabase.auth.updateUser({ password: data.password });
-    if (error) toast.error(error.message);
+    setChangingPw(true)
+    const { error } = await supabase.auth.updateUser({
+      password: data.password,
+    })
+    if (error) toast.error(error.message)
     else {
-      toast.success("Password changed successfully!");
-      pwForm.reset();
+      toast.success("Password changed successfully!")
+      pwForm.reset()
     }
-    setChangingPw(false);
-  };
+    setChangingPw(false)
+  }
 
-  if (!profile) return null;
+  if (!profile) return null
 
-  const roleColor = roleColors[profile.role] ?? "#f97316";
+  const roleColor = roleColors[profile.role] ?? "#f97316"
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
@@ -78,9 +80,7 @@ export default function ProfilePage() {
       >
         Your Profile
       </h1>
-      <p className="text-[#64748b] text-sm mb-6">
-        Manage your account details
-      </p>
+      <p className="text-[#64748b] text-sm mb-6">Manage your account details</p>
 
       {/* Avatar + role */}
       <Card className="p-6 mb-5 flex items-center gap-5">
@@ -110,9 +110,7 @@ export default function ProfilePage() {
             {roleLabels[profile.role]}
           </Badge>
         </div>
-        {profile.banned_at && (
-          <Badge variant="danger">Banned</Badge>
-        )}
+        {profile.banned_at && <Badge variant="danger">Banned</Badge>}
       </Card>
 
       {/* Edit profile */}
@@ -199,7 +197,10 @@ export default function ProfilePage() {
                 year: "numeric",
               }),
             },
-            { label: "Account status", value: profile.banned_at ? "Banned" : "Active" },
+            {
+              label: "Account status",
+              value: profile.banned_at ? "Banned" : "Active",
+            },
           ].map((row) => (
             <div
               key={row.label}
@@ -207,7 +208,9 @@ export default function ProfilePage() {
             >
               <span className="text-xs text-[#64748b]">{row.label}</span>
               <span
-                className={`text-sm font-medium ${row.value === "Banned" ? "text-red-400" : "text-[#f0f4ff]"}`}
+                className={`text-sm font-medium ${
+                  row.value === "Banned" ? "text-red-400" : "text-[#f0f4ff]"
+                }`}
               >
                 {row.value}
               </span>
@@ -216,5 +219,5 @@ export default function ProfilePage() {
         </div>
       </Card>
     </div>
-  );
+  )
 }

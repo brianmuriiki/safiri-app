@@ -1,23 +1,23 @@
-import { useEffect, useState } from "react";
-import { supabase, type Schedule } from "../../lib/supabase";
-import { useAuthStore } from "../../store/authStore";
-import Card from "../../components/ui/Card";
-import Badge from "../../components/ui/Badge";
-import { Clock, MapPin, ArrowRight, Users, CalendarDays } from "lucide-react";
+import { useEffect, useState } from "react"
+import { supabase, type Schedule } from "../../lib/supabase"
+import { useAuthStore } from "../../store/authStore"
+import Card from "../../components/ui/Card"
+import Badge from "../../components/ui/Badge"
+import { Clock, MapPin, ArrowRight, Users, CalendarDays } from "lucide-react"
 
 export default function DriverSchedule() {
-  const { profile } = useAuthStore();
-  const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const { profile } = useAuthStore()
+  const [schedules, setSchedules] = useState<Schedule[]>([])
 
   useEffect(() => {
-    if (!profile) return;
+    if (!profile) return
     supabase
       .from("schedules")
       .select("*, routes(*), vehicles(*)")
       .eq("driver_id", profile.id)
       .order("departure_at", { ascending: false })
-      .then(({ data }) => setSchedules(data ?? []));
-  }, [profile]);
+      .then(({ data }) => setSchedules(data ?? []))
+  }, [profile])
 
   const statusVariant = (s: string) =>
     s === "completed"
@@ -26,7 +26,7 @@ export default function DriverSchedule() {
         ? "info"
         : s === "cancelled"
           ? "danger"
-          : "default";
+          : "default"
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
@@ -41,13 +41,15 @@ export default function DriverSchedule() {
       {schedules.length === 0 ? (
         <Card className="p-8 text-center">
           <CalendarDays size={42} className="mx-auto mb-3 text-[#64748b]" />
-          <div className="text-[#64748b] text-sm">No schedules assigned yet</div>
+          <div className="text-[#64748b] text-sm">
+            No schedules assigned yet
+          </div>
         </Card>
       ) : (
         <div className="flex flex-col gap-3">
           {schedules.map((s) => {
-            const route = s.routes as any;
-            const vehicle = s.vehicles as any;
+            const route = s.routes as any
+            const vehicle = s.vehicles as any
             return (
               <Card key={s.id} className="p-4">
                 <div className="flex items-start justify-between mb-3">
@@ -81,10 +83,10 @@ export default function DriverSchedule() {
                   </span>
                 </div>
               </Card>
-            );
+            )
           })}
         </div>
       )}
     </div>
-  );
+  )
 }

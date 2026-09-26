@@ -1,18 +1,18 @@
-import { useState } from "react";
-import { Menu, X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "../../store/authStore";
-import Sidebar from "./Sidebar";
-import BackButton from "./BackButton";
+import { useState } from "react"
+import { Home, Menu, X } from "lucide-react"
+import { useNavigate } from "react-router-dom"
+import { useAuthStore } from "../../store/authStore"
+import Sidebar from "./Sidebar"
+import BackButton from "./BackButton"
 
 interface TopBarProps {
-  title?: string;
+  title?: string
 }
 
 export default function TopBar({ title }: TopBarProps) {
-  const [open, setOpen] = useState(false);
-  const { profile } = useAuthStore();
-  const navigate = useNavigate();
+  const [open, setOpen] = useState(false)
+  const { profile } = useAuthStore()
+  const navigate = useNavigate()
 
   return (
     <>
@@ -40,15 +40,26 @@ export default function TopBar({ title }: TopBarProps) {
             Safiri
           </span>
         </div>
-        <button
-          type="button"
-          onClick={() => navigate("/profile")}
-          aria-label="Open profile"
-          title="Open profile"
-          className="w-8 h-8 rounded-full bg-[#1a2235] flex items-center justify-center text-xs font-bold text-[#f97316] transition-colors hover:bg-[#243152]"
-        >
-          {profile?.full_name?.charAt(0) ?? profile?.email?.charAt(0) ?? "U"}
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => navigate(profile?.role === "admin" ? "/admin" : profile?.role === "driver" ? "/driver" : "/passenger")}
+            aria-label="Go to home"
+            title="Home"
+            className="grid h-8 w-8 place-items-center rounded-full text-[#94a3b8] transition-colors hover:bg-white/10 hover:text-white"
+          >
+            <Home size={17} />
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate("/profile")}
+            aria-label="Open profile"
+            title="Open profile"
+            className="w-8 h-8 rounded-full bg-[#1a2235] flex items-center justify-center text-xs font-bold text-[#f97316] transition-colors hover:bg-[#243152]"
+          >
+            {profile?.full_name?.charAt(0) ?? profile?.email?.charAt(0) ?? "U"}
+          </button>
+        </div>
       </header>
 
       {/* Mobile drawer overlay */}
@@ -75,5 +86,5 @@ export default function TopBar({ title }: TopBarProps) {
         </div>
       )}
     </>
-  );
+  )
 }

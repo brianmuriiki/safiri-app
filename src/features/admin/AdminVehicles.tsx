@@ -1,22 +1,22 @@
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { supabase, type Vehicle, type Route } from "../../lib/supabase";
-import Card from "../../components/ui/Card";
-import Badge from "../../components/ui/Badge";
-import Button from "../../components/ui/Button";
-import Input from "../../components/ui/Input";
-import Modal from "../../components/ui/Modal";
-import { toast } from "../../components/ui/Toast";
-import { Plus, Ban, Trash2, Bike, Bus, Car } from "lucide-react";
+import { useEffect, useState } from "react"
+import { useForm } from "react-hook-form"
+import { supabase, type Vehicle, type Route } from "../../lib/supabase"
+import Card from "../../components/ui/Card"
+import Badge from "../../components/ui/Badge"
+import Button from "../../components/ui/Button"
+import Input from "../../components/ui/Input"
+import Modal from "../../components/ui/Modal"
+import { toast } from "../../components/ui/Toast"
+import { Plus, Ban, Trash2, Bike, Bus, Car } from "lucide-react"
 
 interface VehicleForm {
-  type: "matatu" | "bus" | "taxi" | "bodaboda";
-  number_plate: string;
-  seat_count: number;
-  model: string;
-  color: string;
-  location: string;
-  route_id: string;
+  type: "matatu" | "bus" | "taxi" | "bodaboda"
+  number_plate: string
+  seat_count: number
+  model: string
+  color: string
+  location: string
+  route_id: string
 }
 
 const vehicleIcons = {
@@ -24,16 +24,16 @@ const vehicleIcons = {
   bus: Bus,
   taxi: Car,
   bodaboda: Bike,
-};
+}
 
 export default function AdminVehicles() {
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-  const [routes, setRoutes] = useState<Route[]>([]);
-  const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [banning, setBanning] = useState<string | null>(null);
-  const [removing, setRemoving] = useState<string | null>(null);
-  const { register, handleSubmit, reset } = useForm<VehicleForm>();
+  const [vehicles, setVehicles] = useState<Vehicle[]>([])
+  const [routes, setRoutes] = useState<Route[]>([])
+  const [open, setOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [banning, setBanning] = useState<string | null>(null)
+  const [removing, setRemoving] = useState<string | null>(null)
+  const { register, handleSubmit, reset } = useForm<VehicleForm>()
 
   const load = () =>
     supabase
@@ -41,64 +41,83 @@ export default function AdminVehicles() {
       .select("*")
       .order("created_at", { ascending: false })
       .then(({ data, error }) => {
-        if (error) toast.error(`Could not load vehicles: ${error.message}`);
-        else setVehicles(data ?? []);
-      });
+        if (error) toast.error(`Could not load vehicles: ${error.message}`)
+        else setVehicles(data ?? [])
+      })
 
   useEffect(() => {
-    load();
-    supabase.from("routes").select("*").eq("active", true).then(({ data }) => setRoutes(data ?? []));
-  }, []);
+    load()
+    supabase
+      .from("routes")
+      .select("*")
+      .eq("active", true)
+      .then(({ data }) => setRoutes(data ?? []))
+  }, [])
 
   const onSubmit = async (data: VehicleForm) => {
-    setLoading(true);
-    const seatCount = Number(data.seat_count);
+    setLoading(true)
+    const seatCount = Number(data.seat_count)
     if (!Number.isInteger(seatCount) || seatCount < 1 || seatCount > 200) {
-      toast.error("Capacity must be a whole number between 1 and 200");
-      setLoading(false);
-      return;
+      toast.error("Capacity must be a whole number between 1 and 200")
+      setLoading(false)
+      return
     }
     const { error } = await supabase.from("vehicles").insert({
       ...data,
       route_id: data.route_id || null,
       seat_count: seatCount,
-      seat_map: Array.from({ length: seatCount }, (_, index) => index + 1),
-    });
+      verification_status: "pending",
+    })
     if (error) {
-      toast.error(`Could not register vehicle: ${error.message}`);
-      setLoading(false);
-      return;
+      toast.error(`Could not register vehicle: ${error.message}`)
+      setLoading(false)
+      return
     }
-    reset();
-    setOpen(false);
-    await load();
-    toast.success("Vehicle registered successfully");
-    setLoading(false);
-  };
+    reset()
+    setOpen(false)
+    await load()
+    toast.success("Vehicle registered successfully")
+    setLoading(false)
+  }
 
   const toggleBan = async (v: Vehicle) => {
-    setBanning(v.id);
+    setBanning(v.id)
     const { error } = await supabase
       .from("vehicles")
       .update({ status: v.status === "banned" ? "active" : "banned" })
-      .eq("id", v.id);
-    if (error) toast.error(`Could not update vehicle: ${error.message}`);
-    else await load();
-    setBanning(null);
-  };
+      .eq("id", v.id)
+    if (error) toast.error(`Could not update vehicle: ${error.message}`)
+    else await load()
+    setBanning(null)
+  }
+
+  const reviewVehicle = async (v: Vehicle, status: "verified" | "rejected") => {
+    setBanning(v.id)
+    const { error } = await supabase.from("vehicles").update({ verification_status: status }).eq("id", v.id)
+    if (error) toast.error(`Could not update vehicle review: ${error.message}`)
+    else { toast.success(`Vehicle marked ${status}`); await load() }
+    setBanning(null)
+  }
 
   const removeVehicle = async (id: string) => {
-    if (!window.confirm("Remove this vehicle? Vehicles with trip history will be archived instead.")) return;
-    setRemoving(id);
+    if (
+      !window.confirm(
+        "Remove this vehicle? Vehicles with trip history will be archived instead.",
+      )
+    )
+      return
+    setRemoving(id)
     const { data: schedules, error: scheduleLookupError } = await supabase
       .from("schedules")
       .select("id")
-      .eq("vehicle_id", id);
+      .eq("vehicle_id", id)
 
     if (scheduleLookupError) {
-      toast.error(`Could not check vehicle schedules: ${scheduleLookupError.message}`);
-      setRemoving(null);
-      return;
+      toast.error(
+        `Could not check vehicle schedules: ${scheduleLookupError.message}`,
+      )
+      setRemoving(null)
+      return
     }
 
     if ((schedules ?? []).length > 0) {
@@ -106,42 +125,49 @@ export default function AdminVehicles() {
         .from("schedules")
         .update({ status: "cancelled" })
         .eq("vehicle_id", id)
-        .eq("status", "scheduled");
+        .eq("status", "scheduled")
       if (cancelError) {
-        toast.error(`Could not cancel vehicle schedules: ${cancelError.message}`);
-        setRemoving(null);
-        return;
+        toast.error(
+          `Could not cancel vehicle schedules: ${cancelError.message}`,
+        )
+        setRemoving(null)
+        return
       }
 
       const { error: retireError } = await supabase
         .from("vehicles")
         .update({ status: "inactive" })
-        .eq("id", id);
+        .eq("id", id)
       if (retireError) {
-        toast.error(`Could not retire vehicle: ${retireError.message}`);
+        toast.error(`Could not retire vehicle: ${retireError.message}`)
       } else {
-        await load();
-        toast.success("Vehicle removed from passenger listings; its scheduled trips were cancelled.");
+        await load()
+        toast.success(
+          "Vehicle removed from passenger listings; its scheduled trips were cancelled.",
+        )
       }
-      setRemoving(null);
-      return;
+      setRemoving(null)
+      return
     }
 
-    const { error } = await supabase.from("vehicles").delete().eq("id", id);
+    const { error } = await supabase.from("vehicles").delete().eq("id", id)
     if (error) {
-      toast.error(`Could not remove vehicle: ${error.message}`);
+      toast.error(`Could not remove vehicle: ${error.message}`)
     } else {
-      await load();
-      toast.success("Vehicle removed");
+      await load()
+      toast.success("Vehicle removed")
     }
-    setRemoving(null);
-  };
+    setRemoving(null)
+  }
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold" style={{ fontFamily: "Fraunces, serif" }}>
+          <h1
+            className="text-2xl font-bold"
+            style={{ fontFamily: "Fraunces, serif" }}
+          >
             Vehicles
           </h1>
           <p className="text-[#64748b] text-sm mt-1">All registered vehicles</p>
@@ -154,58 +180,67 @@ export default function AdminVehicles() {
 
       <div className="grid sm:grid-cols-2 gap-3">
         {vehicles.map((v) => {
-          const VehicleIcon = vehicleIcons[v.type] ?? Car;
-          return <Card key={v.id} className="p-4">
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-500/15 text-[#f97316]"><VehicleIcon size={20} /></div>
-                <div>
-                  <div className="font-medium text-[#f0f4ff] text-sm">
-                    {v.number_plate}
+          const VehicleIcon = vehicleIcons[v.type] ?? Car
+          return (
+            <Card key={v.id} className="p-4">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-500/15 text-[#f97316]">
+                    <VehicleIcon size={20} />
                   </div>
-                  <div className="text-xs text-[#64748b]">
-                    {v.model ?? v.type} · {v.color ?? "—"}
+                  <div>
+                    <div className="font-medium text-[#f0f4ff] text-sm">
+                      {v.number_plate}
+                    </div>
+                    <div className="text-xs text-[#64748b]">
+                      {v.model ?? v.type} · {v.color ?? "—"}
+                    </div>
                   </div>
                 </div>
-              </div>
-              <Badge
-                variant={
-                  v.status === "active"
-                    ? "success"
-                    : v.status === "banned"
-                      ? "danger"
-                      : "default"
-                }
-              >
-                {v.status}
-              </Badge>
-            </div>
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-xs text-[#64748b]">
-                {v.location ? `${v.location} · ` : ""}{v.seat_count} seats
-              </span>
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant={v.status === "banned" ? "success" : "danger"}
-                  loading={banning === v.id}
-                  onClick={() => toggleBan(v)}
+                <Badge
+                  variant={
+                    v.status === "active"
+                      ? "success"
+                      : v.status === "banned"
+                        ? "danger"
+                        : "default"
+                  }
                 >
-                  <Ban size={12} />
-                  {v.status === "banned" ? "Unban" : "Ban"}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  loading={removing === v.id}
-                  onClick={() => removeVehicle(v.id)}
-                >
-                  <Trash2 size={12} />
-                  Remove
-                </Button>
+                  {v.status}
+                </Badge>
               </div>
-            </div>
-          </Card>;
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs text-[#64748b]">
+                  {v.location ? `${v.location} · ` : ""}
+                  {v.seat_count} seats
+                </span>
+                <div className="flex gap-2">
+                  <Badge variant={v.verification_status === "verified" ? "success" : v.verification_status === "rejected" ? "danger" : "warning"}>{v.verification_status ?? "unverified"}</Badge>
+                  {v.verification_status !== "verified" && <Button size="sm" variant="success" loading={banning === v.id} onClick={() => reviewVehicle(v, "verified")}>Verify</Button>}
+                  {v.verification_status === "verified" && <Button size="sm" variant="secondary" loading={banning === v.id} onClick={() => reviewVehicle(v, "rejected")}>Revoke</Button>}
+                  {v.verification_status !== "rejected" && v.verification_status !== "verified" && <Button size="sm" variant="danger" loading={banning === v.id} onClick={() => reviewVehicle(v, "rejected")}>Reject</Button>}
+                  <Button
+                    size="sm"
+                    variant={v.status === "banned" ? "success" : "danger"}
+                    loading={banning === v.id}
+                    onClick={() => toggleBan(v)}
+                  >
+                    <Ban size={12} />
+                    {v.status === "banned" ? "Unban" : "Ban"}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    loading={removing === v.id}
+                    onClick={() => removeVehicle(v.id)}
+                  >
+                    <Trash2 size={12} />
+                    Remove
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          )
         })}
         {vehicles.length === 0 && (
           <Card className="p-8 text-center col-span-2">
@@ -232,12 +267,31 @@ export default function AdminVehicles() {
             </select>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <Input label="Plate Number" placeholder="KAA 000A" {...register("number_plate", { required: true })} />
-            <Input label="Capacity" type="number" min={1} max={200} placeholder="14" {...register("seat_count", { required: true, min: 1, max: 200 })} />
+            <Input
+              label="Plate Number"
+              placeholder="KAA 000A"
+              {...register("number_plate", { required: true })}
+            />
+            <Input
+              label="Capacity"
+              type="number"
+              min={1}
+              max={200}
+              placeholder="14"
+              {...register("seat_count", { required: true, min: 1, max: 200 })}
+            />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <Input label="Model" placeholder="Toyota HiAce" {...register("model")} />
-            <Input label="Color" placeholder="Yellow/Green" {...register("color")} />
+            <Input
+              label="Model"
+              placeholder="Toyota HiAce"
+              {...register("model")}
+            />
+            <Input
+              label="Color"
+              placeholder="Yellow/Green"
+              {...register("color")}
+            />
           </div>
           <Input
             label="Current / pickup location"
@@ -266,5 +320,5 @@ export default function AdminVehicles() {
         </form>
       </Modal>
     </div>
-  );
+  )
 }

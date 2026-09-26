@@ -1,18 +1,18 @@
-import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "../store/authStore";
-import Button from "../components/ui/Button";
-import { Map } from "lucide-react";
+import { useNavigate } from "react-router-dom"
+import { useAuthStore } from "../store/authStore"
+import Button from "../components/ui/Button"
+import { Map } from "lucide-react"
 
 export default function NotFound() {
-  const navigate = useNavigate();
-  const { profile } = useAuthStore();
+  const navigate = useNavigate()
+  const { profile } = useAuthStore()
 
   const home =
     profile?.role === "admin"
       ? "/admin"
       : profile?.role === "driver"
         ? "/driver"
-        : "/passenger";
+        : "/passenger"
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-8 text-center">
@@ -36,5 +36,5 @@ export default function NotFound() {
         </Button>
       </div>
     </div>
-  );
+  )
 }

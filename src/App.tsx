@@ -1,57 +1,61 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react"
 import {
   BrowserRouter,
   Routes,
   Route,
   Navigate,
   Outlet,
-} from "react-router-dom";
-import { supabase } from "./lib/supabase";
-import { useAuthStore } from "./store/authStore";
-import { ToastContainer } from "./components/ui/Toast";
+} from "react-router-dom"
+import { supabase } from "./lib/supabase"
+import { useAuthStore } from "./store/authStore"
+import { ToastContainer } from "./components/ui/Toast"
 
 // Auth
-import AuthPage from "./features/auth/AuthPage";
-import RolePicker from "./features/auth/RolePicker";
-import LandingPage from "./features/auth/LandingPage";
+import AuthPage from "./features/auth/AuthPage"
+import LandingPage from "./features/auth/LandingPage"
+import ContactPage from "./features/ContactPage"
+import TermsPage from "./features/TermsPage"
+import PrivacyPage from "./features/PrivacyPage"
 
 // Layout
-import AppShell from "./components/layout/AppShell";
+import AppShell from "./components/layout/AppShell"
 
 // Passenger
-import PassengerHome from "./features/passenger/PassengerHome";
-import RoutesPage from "./features/passenger/RoutesPage";
-import VehiclesPage from "./features/passenger/VehiclesPage";
-import BookingPage from "./features/passenger/BookingPage";
-import MyTripsPage from "./features/passenger/MyTripsPage";
-import ComplaintsPage from "./features/passenger/ComplaintsPage";
-import ActivitiesPage from "./features/passenger/ActivitiesPage";
+import PassengerHome from "./features/passenger/PassengerHome"
+import RoutesPage from "./features/passenger/RoutesPage"
+import VehiclesPage from "./features/passenger/VehiclesPage"
+import BookingPage from "./features/passenger/BookingPage"
+import MyTripsPage from "./features/passenger/MyTripsPage"
+import ComplaintsPage from "./features/passenger/ComplaintsPage"
+import ActivitiesPage from "./features/passenger/ActivitiesPage"
 
 // Driver
-import DriverDashboard from "./features/driver/DriverDashboard";
-import DriverSchedule from "./features/driver/DriverSchedule";
-import DriverPassengers from "./features/driver/DriverPassengers";
-import DriverComplaints from "./features/driver/DriverComplaints";
-import DriverQRScanner from "./features/driver/DriverQRScanner";
+import DriverDashboard from "./features/driver/DriverDashboard"
+import DriverSchedule from "./features/driver/DriverSchedule"
+import DriverPassengers from "./features/driver/DriverPassengers"
+import DriverComplaints from "./features/driver/DriverComplaints"
+import DriverQRScanner from "./features/driver/DriverQRScanner"
 
 // Admin
-import AdminAnalytics from "./features/admin/AdminAnalytics";
-import AdminUsers from "./features/admin/AdminUsers";
-import AdminVehicles from "./features/admin/AdminVehicles";
-import AdminRoutes from "./features/admin/AdminRoutes";
-import AdminSchedules from "./features/admin/AdminSchedules";
-import AdminComplaints from "./features/admin/AdminComplaints";
-import AdminActivities from "./features/admin/AdminActivities";
-import AdminBookings from "./features/admin/AdminBookings";
-import AdminNotifications from "./features/admin/AdminNotifications";
+import AdminAnalytics from "./features/admin/AdminAnalytics"
+import AdminUsers from "./features/admin/AdminUsers"
+import AdminVehicles from "./features/admin/AdminVehicles"
+import AdminRoutes from "./features/admin/AdminRoutes"
+import AdminSchedules from "./features/admin/AdminSchedules"
+import AdminComplaints from "./features/admin/AdminComplaints"
+import AdminActivities from "./features/admin/AdminActivities"
+import AdminBookings from "./features/admin/AdminBookings"
+import AdminNotifications from "./features/admin/AdminNotifications"
+import AdminPrivacyRequests from "./features/admin/AdminPrivacyRequests"
 
 // Shared
-import ProfilePage from "./features/profile/ProfilePage";
-import NotificationsPage from "./features/notifications/NotificationsPage";
-import NotFound from "./features/NotFound";
+import ProfilePage from "./features/profile/ProfilePage"
+import NotificationsPage from "./features/notifications/NotificationsPage"
+import NotFound from "./features/NotFound"
 
 function AuthGuard() {
-  const { user, profile, loading } = useAuthStore();
+  const { user, profile, profileError, fetchProfile, loading } = useAuthStore()
+  const [retryingProfile, setRetryingProfile] = useState(false)
 
   if (loading) {
     return (
@@ -59,7 +63,10 @@ function AuthGuard() {
         <div className="flex flex-col items-center gap-4">
           <div className="relative">
             <div className="w-14 h-14 rounded-2xl bg-[#f97316] flex items-center justify-center shadow-lg shadow-orange-500/30">
-              <span className="text-white font-bold text-2xl" style={{ fontFamily: "Fraunces, serif" }}>
+              <span
+                className="text-white font-bold text-2xl"
+                style={{ fontFamily: "Fraunces, serif" }}
+              >
                 S
               </span>
             </div>
@@ -67,22 +74,71 @@ function AuthGuard() {
           </div>
           <div className="text-center">
             <p className="text-[#f0f4ff] font-semibold">Safiri</p>
-            <p className="text-[#64748b] text-xs mt-0.5">Loading your journey…</p>
+            <p className="text-[#64748b] text-xs mt-0.5">
+              Loading your journey…
+            </p>
           </div>
         </div>
       </div>
-    );
+    )
   }
 
-  if (!user) return <Navigate to="/landing" replace />;
-  if (!profile) return <Navigate to="/role" replace />;
+  if (!user) return <Navigate to="/landing" replace />
+  if (!profile) {
+    const retryProfile = async () => {
+      if (!user) return
+      setRetryingProfile(true)
+      await fetchProfile(user.id)
+      setRetryingProfile(false)
+    }
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0a0f1e] p-6">
+        <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#111a2c] p-6 text-center">
+          <h1 className="mb-2 text-xl font-bold text-[#f0f4ff]">We couldn’t load your account</h1>
+          <p className="mb-4 text-sm leading-6 text-[#94a3b8]">
+            Your sign-in is active, but Safiri couldn’t load your profile. Check your connection and try again. If it keeps happening, contact{" "}
+            <a className="text-[#f97316] hover:underline" href="mailto:safiriapp@gmail.com">
+              safiriapp@gmail.com
+            </a>{" "}
+            and share the details below.
+          </p>
+          {profileError && (
+            <details className="mb-5 rounded-lg bg-black/20 p-3 text-left text-xs text-[#94a3b8]">
+              <summary className="cursor-pointer font-medium text-[#cbd5e1]">Error details</summary>
+              <p className="mt-2 break-words">{profileError}</p>
+            </details>
+          )}
+          <div className="flex justify-center gap-3">
+            <button
+              type="button"
+              disabled={retryingProfile}
+              onClick={() => void retryProfile()}
+              className="rounded-xl bg-[#f97316] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+            >
+              {retryingProfile ? "Retrying…" : "Try again"}
+            </button>
+            <button
+              type="button"
+              onClick={() => void useAuthStore.getState().signOut()}
+              className="rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-[#cbd5e1]"
+            >
+              Sign out
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
   if (profile.banned_at) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0a0f1e] p-6">
         <div className="max-w-md text-center">
-          <h1 className="text-2xl font-bold text-[#f0f4ff] mb-2">Account suspended</h1>
+          <h1 className="text-2xl font-bold text-[#f0f4ff] mb-2">
+            Account suspended
+          </h1>
           <p className="text-[#94a3b8] mb-6">
-            This account is currently suspended. Please contact support for help.
+            This account is currently suspended. Please contact support for
+            help.
           </p>
           <button
             type="button"
@@ -93,68 +149,73 @@ function AuthGuard() {
           </button>
         </div>
       </div>
-    );
+    )
   }
-  return <Outlet />;
+  return <Outlet />
 }
 
 function RoleGuard({ allow }: { allow: string[] }) {
-  const { profile } = useAuthStore();
+  const { profile } = useAuthStore()
   if (!profile || !allow.includes(profile.role))
-    return <Navigate to="/" replace />;
-  return <Outlet />;
+    return <Navigate to="/" replace />
+  return <Outlet />
 }
 
 function RootRedirect() {
-  const { profile } = useAuthStore();
-  if (profile?.role === "admin") return <Navigate to="/admin" replace />;
-  if (profile?.role === "driver") return <Navigate to="/driver" replace />;
-  return <Navigate to="/passenger" replace />;
+  const { profile } = useAuthStore()
+  if (profile?.role === "admin") return <Navigate to="/admin" replace />
+  if (profile?.role === "driver") return <Navigate to="/driver" replace />
+  return <Navigate to="/passenger" replace />
 }
 
 export default function App() {
-  const { setUser, fetchProfile } = useAuthStore();
+  const { setUser, fetchProfile } = useAuthStore()
 
   useEffect(() => {
-    let active = true;
-    let processedSessionKey: string | null = null;
+    let active = true
+    let processedSessionKey: string | null = null
 
-    const syncAuthState = async (session: Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"]) => {
-      const sessionKey = session?.access_token ?? "anonymous";
-      if (processedSessionKey === sessionKey) return;
-      processedSessionKey = sessionKey;
+    const syncAuthState = async (
+      session: Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"],
+    ) => {
+      const sessionKey = session?.access_token ?? "anonymous"
+      if (processedSessionKey === sessionKey) return
+      processedSessionKey = sessionKey
 
-      const user = session?.user ?? null;
-      setUser(user);
+      const user = session?.user ?? null
+      setUser(user)
       if (user) {
-        await fetchProfile(user.id);
+        await fetchProfile(user.id)
       } else {
-        useAuthStore.setState({ profile: null, loading: false });
+        useAuthStore.setState({ profile: null, profileError: null, loading: false })
       }
-      if (active) useAuthStore.setState({ loading: false, initialized: true });
-    };
+      if (active) useAuthStore.setState({ loading: false, initialized: true })
+    }
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-      void syncAuthState(session);
-    });
+      void syncAuthState(session)
+    })
 
     supabase.auth.getSession().then(({ data }) => {
-      void syncAuthState(data.session);
-    });
+      void syncAuthState(data.session)
+    })
 
     return () => {
-      active = false;
-      sub.subscription.unsubscribe();
-    };
-  }, []);
+      active = false
+      sub.subscription.unsubscribe()
+    }
+  }, [])
 
   return (
     <BrowserRouter>
       <Routes>
         {/* Public */}
         <Route path="/landing" element={<LandingPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/auth" element={<AuthPage />} />
-        <Route path="/role" element={<RolePicker />} />
+        <Route path="/role" element={<Navigate to="/auth?mode=register" replace />} />
 
         {/* Protected */}
         <Route element={<AuthGuard />}>
@@ -166,11 +227,23 @@ export default function App() {
               <Route path="/passenger" element={<PassengerHome />} />
               <Route path="/passenger/routes" element={<RoutesPage />} />
               <Route path="/passenger/vehicles" element={<VehiclesPage />} />
-              <Route path="/passenger/activities" element={<ActivitiesPage />} />
-              <Route path="/passenger/book/:scheduleId" element={<BookingPage />} />
+              <Route
+                path="/passenger/activities"
+                element={<ActivitiesPage />}
+              />
+              <Route
+                path="/passenger/book/:scheduleId"
+                element={<BookingPage />}
+              />
               <Route path="/passenger/bookings" element={<MyTripsPage />} />
-              <Route path="/passenger/complaints" element={<ComplaintsPage />} />
-              <Route path="/passenger/notifications" element={<NotificationsPage />} />
+              <Route
+                path="/passenger/complaints"
+                element={<ComplaintsPage />}
+              />
+              <Route
+                path="/passenger/notifications"
+                element={<NotificationsPage />}
+              />
             </Route>
           </Route>
 
@@ -182,7 +255,10 @@ export default function App() {
               <Route path="/driver/passengers" element={<DriverPassengers />} />
               <Route path="/driver/scan" element={<DriverQRScanner />} />
               <Route path="/driver/complaints" element={<DriverComplaints />} />
-              <Route path="/driver/notifications" element={<NotificationsPage />} />
+              <Route
+                path="/driver/notifications"
+                element={<NotificationsPage />}
+              />
             </Route>
           </Route>
 
@@ -197,7 +273,11 @@ export default function App() {
               <Route path="/admin/bookings" element={<AdminBookings />} />
               <Route path="/admin/complaints" element={<AdminComplaints />} />
               <Route path="/admin/activities" element={<AdminActivities />} />
-              <Route path="/admin/notifications" element={<AdminNotifications />} />
+              <Route
+                path="/admin/notifications"
+                element={<AdminNotifications />}
+              />
+              <Route path="/admin/privacy-requests" element={<AdminPrivacyRequests />} />
             </Route>
           </Route>
 
@@ -213,5 +293,5 @@ export default function App() {
 
       <ToastContainer />
     </BrowserRouter>
-  );
+  )
 }

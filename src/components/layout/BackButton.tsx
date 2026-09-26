@@ -1,27 +1,27 @@
-import { ArrowLeft } from "lucide-react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react"
+import { useLocation, useNavigate } from "react-router-dom"
 
 export default function BackButton() {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const navigate = useNavigate()
+  const location = useLocation()
 
   if (["/passenger", "/driver", "/admin"].includes(location.pathname)) {
-    return null;
+    return null
   }
 
   const handleBack = () => {
     if (window.history.length > 1) {
-      navigate(-1);
-      return;
+      navigate(-1)
+      return
     }
 
     const home = location.pathname.startsWith("/admin")
       ? "/admin"
       : location.pathname.startsWith("/driver")
         ? "/driver"
-        : "/passenger";
-    navigate(home, { replace: true });
-  };
+        : "/passenger"
+    navigate(home, { replace: true })
+  }
 
   return (
     <button
@@ -33,5 +33,5 @@ export default function BackButton() {
     >
       <ArrowLeft size={18} />
     </button>
-  );
+  )
 }

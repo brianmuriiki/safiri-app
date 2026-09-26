@@ -85,3 +85,82 @@ input:-webkit-autofill:focus {
   -webkit-box-shadow: 0 0 0 30px #1a2235 inset !important;
   -webkit-text-fill-color: #f0f4ff !important;
 }
+
+.matatu-track {
+  height: 96px;
+  position: relative;
+  overflow: hidden;
+  margin-top: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  border-radius: 16px;
+  background:
+    radial-gradient(ellipse at 52% 0%, rgba(59, 130, 246, 0.12), transparent 54%),
+    linear-gradient(180deg, #111c2e 0%, #101827 100%);
+}
+
+.matatu-skyline {
+  position: absolute;
+  inset: 0 0 auto;
+  width: 100%;
+  height: 86px;
+  opacity: 0.82;
+}
+
+.matatu-road {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 22px;
+  background: linear-gradient(180deg, rgba(51, 65, 85, 0.35), rgba(15, 23, 42, 0.88));
+  border-top: 1px solid rgba(203, 213, 225, 0.12);
+}
+
+.matatu-lane {
+  position: absolute;
+  right: 0;
+  bottom: 9px;
+  left: 0;
+  height: 2px;
+  background: repeating-linear-gradient(90deg, rgba(251, 191, 36, 0.6) 0 24px, transparent 24px 46px);
+  opacity: 0.62;
+}
+
+.matatu-ride {
+  position: absolute;
+  z-index: 1;
+  bottom: 1px;
+  left: -172px;
+  width: 180px;
+  height: auto;
+  filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.24));
+  animation: safiri-matatu-drive 14s cubic-bezier(0.42, 0, 0.58, 1) infinite;
+}
+
+.matatu-wheel-spokes {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: safiri-wheel-spin 1.2s linear infinite;
+}
+
+@keyframes safiri-matatu-drive {
+  0% { left: -202px; }
+  8% { left: -184px; }
+  92% { left: calc(100% + 12px); }
+  100% { left: calc(100% + 28px); }
+}
+
+@keyframes safiri-wheel-spin {
+  to { rotate: 360deg; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .matatu-ride {
+    animation: none;
+    left: calc(50% - 90px);
+  }
+
+  .matatu-wheel-spokes {
+    animation: none;
+  }
+}

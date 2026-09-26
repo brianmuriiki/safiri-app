@@ -1,9 +1,9 @@
-import React from "react";
+import React from "react"
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label?: string;
-  error?: string;
-  icon?: React.ReactNode;
+  label?: string
+  error?: string
+  icon?: React.ReactNode
 }
 
 export default function Input({
@@ -25,11 +25,17 @@ export default function Input({
           </span>
         )}
         <input
-          className={`w-full bg-[#1a2235] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-[#f0f4ff] placeholder:text-[#64748b] outline-none focus:border-[#f97316] focus:ring-2 focus:ring-[#f97316]/20 transition-all ${icon ? "pl-10" : ""} ${error ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""} ${className}`}
+          className={`w-full bg-[#1a2235] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-[#f0f4ff] placeholder:text-[#64748b] outline-none focus:border-[#f97316] focus:ring-2 focus:ring-[#f97316]/20 transition-all ${
+            icon ? "pl-10" : ""
+          } ${
+            error
+              ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+              : ""
+          } ${className}`}
           {...props}
         />
       </div>
       {error && <p className="text-xs text-red-400">{error}</p>}
     </div>
-  );
+  )
 }
