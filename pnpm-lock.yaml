@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@paystack/inline-js':
+        specifier: ^2.26.0
+        version: 2.26.0
       '@supabase/supabase-js':
         specifier: ^2.115.0
         version: 2.115.0
@@ -140,6 +143,10 @@ packages:
     resolution: {integrity: sha512-WkFXliDbwFiziBSfvWXeM0Y3x07Kxxrl39kgsp+N3n5QgzsM8q6qe094+OW+hItDQ+9SSd2y9u231sMCsKxlog==}
     cpu: [x64]
     os: [win32]
+
+  '@paystack/inline-js@2.26.0':
+    resolution: {integrity: sha512-3R1ewkV/zQ/zlIkKry7AQyzeXmTmmXxiDIY/52zFXySfmiwxv3OQ2lozxxIEY5Zw2kqfB7WVjhqQY1RcB4i0wQ==}
+    engines: {node: '>= 22.0.0'}
 
   '@rolldown/binding-android-arm64@1.0.0-rc.12':
     resolution: {integrity: sha512-pv1y2Fv0JybcykuiiD3qBOBdz6RteYojRFY1d+b95WVuzx211CRh+ytI/+9iVyWQ6koTh5dawe4S/yRfOFjgaA==}
@@ -745,6 +752,8 @@ snapshots:
 
   '@oxfmt/win32-x64@0.2.0':
     optional: true
+
+  '@paystack/inline-js@2.26.0': {}
 
   '@rolldown/binding-android-arm64@1.0.0-rc.12':
     optional: true
