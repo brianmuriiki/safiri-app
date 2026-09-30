@@ -47,6 +47,7 @@ import AdminActivities from "./features/admin/AdminActivities"
 import AdminBookings from "./features/admin/AdminBookings"
 import AdminNotifications from "./features/admin/AdminNotifications"
 import AdminPrivacyRequests from "./features/admin/AdminPrivacyRequests"
+import AdminVerifications from "./features/admin/AdminVerifications"
 
 // Shared
 import ProfilePage from "./features/profile/ProfilePage"
@@ -267,6 +268,7 @@ export default function App() {
             <Route element={<AppShell />}>
               <Route path="/admin" element={<AdminAnalytics />} />
               <Route path="/admin/users" element={<AdminUsers />} />
+              <Route path="/admin/verifications" element={<AdminVerifications />} />
               <Route path="/admin/vehicles" element={<AdminVehicles />} />
               <Route path="/admin/routes" element={<AdminRoutes />} />
               <Route path="/admin/schedules" element={<AdminSchedules />} />

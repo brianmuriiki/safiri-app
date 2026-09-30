@@ -17,6 +17,7 @@ import {
   Calendar,
   Bell,
   LockKeyhole,
+  ShieldCheck,
 } from "lucide-react"
 import { useAuthStore } from "../../store/authStore"
 
@@ -74,6 +75,7 @@ const driverNav: NavItem[] = [
 const adminNav: NavItem[] = [
   { to: "/admin", icon: <BarChart3 size={18} />, label: "Analytics" },
   { to: "/admin/users", icon: <Users size={18} />, label: "Users" },
+  { to: "/admin/verifications", icon: <ShieldCheck size={18} />, label: "Verifications" },
   { to: "/admin/vehicles", icon: <Bus size={18} />, label: "Vehicles" },
   { to: "/admin/routes", icon: <Route size={18} />, label: "Routes" },
   { to: "/admin/schedules", icon: <Settings size={18} />, label: "Schedules" },

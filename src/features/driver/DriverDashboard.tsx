@@ -11,6 +11,12 @@ export default function DriverDashboard() {
   const [schedules, setSchedules] = useState<Schedule[]>([])
   const [todayBookings, setTodayBookings] = useState(0)
   const [upcomingCount, setUpcomingCount] = useState(0)
+  const reviewStatus = profile?.driver_verification_status ?? "unverified"
+  const reviewMessage = reviewStatus === "unverified"
+    ? "Your driver account has not been approved yet. Ask a Safiri admin to review it in Admin → Users. You can publish schedules after approval."
+    : reviewStatus === "rejected"
+      ? "Your driver account was not approved. Contact Safiri support if you think this is a mistake."
+      : "Safiri is reviewing this driver account. You can publish schedules after verification is complete."
 
   useEffect(() => {
     if (!profile) return
@@ -52,7 +58,7 @@ export default function DriverDashboard() {
       </p>
       <div className="mb-6"><MatatuAnimation /></div>
 
-      {profile?.driver_verification_status !== "verified" && <Card className="mb-6 flex items-start gap-3 border border-amber-400/20 bg-amber-300/5 p-4"><ShieldCheck className="mt-0.5 shrink-0 text-amber-300" size={18}/><div><div className="text-sm font-semibold capitalize text-amber-200">Driver review: {profile?.driver_verification_status ?? "unverified"}</div><p className="mt-1 text-xs leading-5 text-[#94a3b8]">Safiri is reviewing this driver account. New schedules cannot be published to passengers until verification is complete. Contact support if you need help.</p></div></Card>}
+      {reviewStatus !== "verified" && <Card className="mb-6 flex items-start gap-3 border border-amber-400/20 bg-amber-300/5 p-4"><ShieldCheck className="mt-0.5 shrink-0 text-amber-300" size={18}/><div><div className="text-sm font-semibold capitalize text-amber-200">Driver review: {reviewStatus}</div><p className="mt-1 text-xs leading-5 text-[#94a3b8]">{reviewMessage} {reviewStatus === "rejected" && <a href="mailto:safiriapp@gmail.com" className="text-orange-300 hover:underline">Email support</a>}</p></div></Card>}
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-4 mb-8">
